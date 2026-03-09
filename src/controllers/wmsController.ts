@@ -1,5 +1,5 @@
 /**
- * WMS controller for the mock API.
+ * @fileoverview HTTP handler for WMS resolution endpoint.
  */
 
 import { FastifyReply, FastifyRequest } from "fastify";
@@ -14,6 +14,14 @@ interface WmsRequestBody {
   filters?: unknown[];
 }
 
+/**
+ * Validates WMS request input and returns the resolved WMS response payload.
+ * Responds with `400` when required fields are missing or invalid.
+ * Responds with `404` when the webmap or layer cannot be resolved.
+ * @param req Fastify request containing WMS payload in the body.
+ * @param reply Fastify reply object.
+ * @returns Fastify reply containing the resolved WMS payload or a standardized error response.
+ */
 export const postWms = async (
   req: FastifyRequest<{ Body: WmsRequestBody }>,
   reply: FastifyReply

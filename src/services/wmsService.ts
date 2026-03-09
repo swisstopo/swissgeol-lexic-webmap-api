@@ -1,6 +1,5 @@
 /**
- * WMS mock response composer.
- * Returns a static URL (hard-coded mock) without any business logic.
+ * @fileoverview Service helper for WMS response payloads.
  */
 
 import { WMS_RESPONSE_TEMPLATE, WmsResponse } from "../data/mockData";

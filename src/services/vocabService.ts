@@ -1,5 +1,5 @@
 /**
- * Vocabulary services for mock responses.
+ * @fileoverview Service helpers for vocabulary-related response payloads.
  */
 
 import {
@@ -9,19 +9,31 @@ import {
   VOCABULARY_TERMS,
 } from "../data/mockData";
 
+/**
+ * Response contract for vocabulary listing endpoints.
+ */
 export interface VocabulariesResponse {
   vocabularies: Array<{ id: string; name: string }>;
 }
 
+/**
+ * Response contract for vocabulary terms endpoints.
+ */
 export interface VocabularyTermsResponse {
   terms: string[];
 }
 
+/**
+ * Layer reference contract returned by vocabulary-layer endpoints.
+ */
 export interface VocabularyLayerRef {
   id: string;
   name: string;
 }
 
+/**
+ * Response contract for vocabulary-layer endpoints.
+ */
 export interface VocabularyLayersResponse {
   layers: VocabularyLayerRef[];
 }

@@ -5,6 +5,8 @@ info:
     RESTful API to discover filterable layers, list enabled semantic filters and their parameters, and to obtain a customized WMS endpoint (with semantic query) to display a filtered layer on a map.
     All endpoints are protected by API Key authentication.
     Clients must provide a valid API key using the `X-API-Key` HTTP header.
+
+    OpenAPI JSON endpoint available at <base-url>/swagger/json
   version: 1.3.0
 externalDocs:
   description: WebMap semantic filter architecture and usage

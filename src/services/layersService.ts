@@ -1,5 +1,5 @@
 /**
- * Layer services for composing mock responses.
+ * @fileoverview Service helpers for layer-related response payloads.
  */
 
 import {
@@ -10,6 +10,9 @@ import {
   LayerDefinition,
 } from "../data/mockData";
 
+/**
+ * Public layer representation exposed by layer listing endpoints.
+ */
 export interface LayerSummary {
   id: string;
   name: string;
@@ -17,16 +20,25 @@ export interface LayerSummary {
   availableFilters: Array<{ id: string; name: string }>;
 }
 
+/**
+ * Response contract for layer listing endpoints.
+ */
 export interface LayersResponse {
   webmapId: string;
   layers: LayerSummary[];
 }
 
+/**
+ * Response contract for layer filter endpoints.
+ */
 export interface LayerFiltersResponse {
   layerId: string;
   filters: FilterDefinition[];
 }
 
+/**
+ * Response contract for layer attribute endpoints.
+ */
 export interface LayerAttributesResponse {
   layerId: string;
   attributes: string[];
