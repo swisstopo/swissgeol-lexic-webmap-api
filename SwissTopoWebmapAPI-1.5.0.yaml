@@ -7,24 +7,26 @@ info:
     Clients must provide a valid API key using the `X-API-Key` HTTP header.
 
     OpenAPI JSON endpoint available at <base-url>/swagger/json
-  version: 1.3.0
+  version: 1.5.0
 externalDocs:
   description: WebMap semantic filter architecture and usage
   url: https://virtserver.swaggerhub.com/epsilonitalia/SwissTopoWebmapAPI/1.0.1
 servers:
-- url: https://virtserver.swaggerhub.com/epsilonitalia/SwissTopoWebmapAPI/1.0.1
-  description: SwaggerHub API Auto Mocking
-- url: https://api.example.com/v1
-  description: Production server
+  - url: https://webmap-api.swissgeol.ch
+    description: Swisstopo Production Server
+  - url: https://int-webmap-api.swissgeol.ch
+    description: Swisstopo INT Server
+  - url: https://dev-webmap-api.swissgeol.ch
+    description: Swisstopo DEV Server
 security:
 - ApiKeyAuth: []
 tags:
 - name: Layers
   description: Endpoints to list layers and their filters
-- name: WMS
-  description: Endpoints to obtain WMS links for filtered layers
 - name: Vocabularies
   description: Endpoints for listing vocabularies and their terms
+- name: WMS
+  description: Endpoints to obtain WMS links for filtered layers
 
 paths:
   /layers:
@@ -32,6 +34,15 @@ paths:
       tags:
       - Layers
       summary: Get list of filterable layers for a WebMap
+      parameters:
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [en, it, de, fr]
+          default: en
+        description: Language for filter labels and descriptions
       responses:
         "200":
           description: List of filterable layers
@@ -48,28 +59,44 @@ paths:
                   availableFilters:
                   - id: f-chronostrat-term
                     name: Filter by Chronostratigraphy term
+                    title: Filter by Chronostratigraphy term
+                    description: Filter by chronostratigraphic intervals
                   - id: f-tectonic-term
                     name: Filter by Tectonic Units term
+                    title: Filter by Tectonic Units term
+                    description: Filter by tectonic units
                 - id: GC_BEDROCK
                   name: Bedrock Geology
                   filterable: true
                   availableFilters:
                   - id: f-chronostrat-term
                     name: Filter by Chronostratigraphy term
+                    title: Filter by Chronostratigraphy term
+                    description: Filter by chronostratigraphic intervals
                   - id: f-tectonic-term
                     name: Filter by Tectonic Units term
+                    title: Filter by Tectonic Units term
+                    description: Filter by tectonic units
                   - id: f-lithostrat-term
                     name: Filter by Lithostratigraphy term
+                    title: Filter by Lithostratigraphy term
+                    description: Filter by lithostratigraphic units
                   - id: f-lithology-term
                     name: Filter by Lithology term
+                    title: Filter by Lithology term
+                    description: Filter by lithology classes
                   - id: f-byAttribute
                     name: Filter by Attribute
+                    title: Filter by Attribute
+                    description: Filter by attribute key/value
                 - id: GC_UNCO_DEPOSITS
                   name: Unconsolidated Deposits
                   filterable: true
                   availableFilters:
                   - id: f-chronostrat-term
                     name: Filter by Chronostratigraphy term
+                    title: Filter by Chronostratigraphy term
+                    description: Filter by chronostratigraphic intervals
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -87,6 +114,14 @@ paths:
         required: true
         schema:
           type: string
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [en, it, de, fr]
+          default: en
+        description: Language for filter labels and descriptions
       responses:
         "200":
           description: Enabled filters for the specified layer
@@ -102,21 +137,92 @@ paths:
                     filters:
                     - id: f-chronostrat-term
                       name: Filter by Chronostratigraphy term
+                      title: Filter by Chronostratigraphy term
                       description: Filter by chronostratigraphic intervals
                     - id: f-tectonic-term
                       name: Filter by Tectonic Units term
+                      title: Filter by Tectonic Units term
                       description: Filter by tectonic units
                     - id: f-lithostrat-term
                       name: Filter by Lithostratigraphy term
+                      title: Filter by Lithostratigraphy term
                       description: Filter by lithostratigraphic units
                     - id: f-lithology-term
                       name: Filter by Lithology term
+                      title: Filter by Lithology term
                       description: Filter by lithology classes
                     - id: f-byAttribute
                       name: Filter by Attribute
+                      title: Filter by Attribute
                       description: Filter by attribute key/value
         "400":
           $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /layers/{layerId}/defaultFilters:
+    get:
+      tags:
+      - Layers
+      summary: Get default filters for a layer and a vocabulary term
+      description: >
+        Returns the default filters that should be applied to visualize the provided vocabulary term on the selected layer.
+        The vocabulary is inferred from the term URI. If the layer does not support the inferred vocabulary, the endpoint returns an error.
+      parameters:
+      - name: layerId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: term
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uri
+        description: Vocabulary term URI used to infer the vocabulary and build the default filter
+      responses:
+        "200":
+          description: Default filters for the specified layer and term
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultFiltersResponse"
+              examples:
+                ChronostratigraphyTerm:
+                  summary: Example with a Chronostratigraphy term and no default filters
+                  value:
+                    layerId: GC_BEDROCK
+                    filters: []
+                LithologyTerm:
+                  summary: Example with a Lithology term and one default filter
+                  value:
+                    layerId: GC_BEDROCK
+                    filters:
+                    - filterId: f-lithology-term
+                      parameters:
+                        term: https://dev-lexic.swissgeol.ch/Lithology/Amphibolite
+                        includeNarrowers: true
+                TectonicUnitsTerm:
+                  summary: Example with a Tectonic Units term and one default filter
+                  value:
+                    layerId: TECTONIC_UNITS
+                    filters:
+                    - filterId: f-tectonic-term
+                      parameters:
+                        term: https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben
+                        includeNarrowers: true
+        "400":
+          description: The layer does not support the vocabulary inferred from the provided term URI
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: 400
+                message: Layer does not support the vocabulary inferred from the provided term
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -201,7 +307,7 @@ paths:
           type: string
           enum: [en, it, de, fr]
           default: en
-        description: Language for vocabulary labels
+        description: Language for vocabulary related data
       responses:
         "200":
           description: List of Chronostratigraphy terms
@@ -211,19 +317,35 @@ paths:
                 $ref: '#/components/schemas/VocabularyTerms'
               example:
                 terms:
-                  - https://lexic.swissgeol.ch/Quaternary
-                  - https://lexic.swissgeol.ch/Neogene
-                  - https://lexic.swissgeol.ch/Paleogene
-                  - https://lexic.swissgeol.ch/Cretaceous
-                  - https://lexic.swissgeol.ch/Jurassic
-                  - https://lexic.swissgeol.ch/Triassic
-                  - https://lexic.swissgeol.ch/Permian
+                  - term: https://lexic.swissgeol.ch/Quaternary
+                    label: Quaternary
+                    description: Mock description for the Quaternary chronostratigraphy term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Chronostratigraphy
+                      "2": Quaternary
+                  - term: https://lexic.swissgeol.ch/Neogene
+                    label: Neogene
+                    description: Mock description for the Neogene chronostratigraphy term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Chronostratigraphy
+                      "2": Neogene
 
   /vocabularies/tectonic-units/terms:
     get:
       tags:
       - Vocabularies
       summary: Get all Tectonic Units terms
+      parameters:
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [en, it, de, fr]
+          default: en
+        description: Language for vocabulary related data
       responses:
         "200":
           description: List of Tectonic Units terms
@@ -233,17 +355,35 @@ paths:
                 $ref: '#/components/schemas/VocabularyTerms'
               example:
                 terms:
-                  - https://lexic.swissgeol.ch/Helvetic
-                  - https://lexic.swissgeol.ch/Penninic
-                  - https://lexic.swissgeol.ch/Salassic
-                  - https://lexic.swissgeol.ch/LechtalNappe
-                  - https://lexic.swissgeol.ch/InntalNappe
+                  - term: https://lexic.swissgeol.ch/Helvetic
+                    label: Helvetic
+                    description: Mock description for the Helvetic tectonic units term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Tectonic Units
+                      "2": Helvetic
+                  - term: https://lexic.swissgeol.ch/Penninic
+                    label: Penninic
+                    description: Mock description for the Penninic tectonic units term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Tectonic Units
+                      "2": Penninic
 
   /vocabularies/lithostratigraphy/terms:
     get:
       tags:
       - Vocabularies
       summary: Get all Lithostratigraphy terms
+      parameters:
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [en, it, de, fr]
+          default: en
+        description: Language for vocabulary related data
       responses:
         "200":
           description: List of Lithostratigraphy terms
@@ -253,17 +393,35 @@ paths:
                 $ref: '#/components/schemas/VocabularyTerms'
               example:
                 terms:
-                  - https://lexic.swissgeol.ch/Molasse
-                  - https://lexic.swissgeol.ch/Adriaticplate
-                  - https://lexic.swissgeol.ch/Caraleschist
-                  - https://lexic.swissgeol.ch/Haupterbreccia
-                  - https://lexic.swissgeol.ch/Servino
+                  - term: https://lexic.swissgeol.ch/Molasse
+                    label: Molasse
+                    description: Mock description for the Molasse lithostratigraphy term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Lithostratigraphy
+                      "2": Molasse
+                  - term: https://lexic.swissgeol.ch/Servino
+                    label: Servino
+                    description: Mock description for the Servino lithostratigraphy term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Lithostratigraphy
+                      "2": Servino
 
   /vocabularies/lithology/terms:
     get:
       tags:
       - Vocabularies
       summary: Get all Lithology terms
+      parameters:
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          enum: [en, it, de, fr]
+          default: en
+        description: Language for vocabulary related data
       responses:
         "200":
           description: List of Lithology terms
@@ -273,11 +431,20 @@ paths:
                 $ref: '#/components/schemas/VocabularyTerms'
               example:
                 terms:
-                  - https://lexic.swissgeol.ch/Rock
-                  - https://lexic.swissgeol.ch/RockSedimentary
-                  - https://lexic.swissgeol.ch/Breccia
-                  - https://lexic.swissgeol.ch/Marlstone
-                  - https://lexic.swissgeol.ch/Dolostone
+                  - term: https://lexic.swissgeol.ch/Rock
+                    label: Rock
+                    description: Mock description for the Rock lithology term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Lithology
+                      "2": Rock
+                  - term: https://lexic.swissgeol.ch/Breccia
+                    label: Breccia
+                    description: Mock description for the Breccia lithology term.
+                    breadcrumbs:
+                      "0": Home
+                      "1": Lithology
+                      "2": Breccia
 
   /vocabularies/chronostratigraphy/layers:
     get:
@@ -424,6 +591,8 @@ components:
             - f-byAttribute
         name:
           type: string
+        title:
+          type: string
         description:
           type: string
 
@@ -558,6 +727,22 @@ components:
           type: string
         name:
           type: string
+        title:
+          type: string
+        description:
+          type: string
+
+    DefaultFiltersResponse:
+      type: object
+      required: [layerId, filters]
+      properties:
+        layerId:
+          type: string
+        filters:
+          type: array
+          description: Default filters to apply when visualizing the selected vocabulary term on the map
+          items:
+            $ref: "#/components/schemas/WmsRequest_filters"
 
     VocabulariesList:
       type: object
@@ -581,6 +766,22 @@ components:
         terms:
           type: array
           items:
+            $ref: "#/components/schemas/VocabularyTerm"
+
+    VocabularyTerm:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uri
+        label:
+          type: string
+        description:
+          type: string
+        breadcrumbs:
+          description: Ordered breadcrumb map. Keys represent numeric positions and are serialized as strings in JSON, for example "0", "1", "2".
+          type: object
+          additionalProperties:
             type: string
 
     VocabularyLayerRef:
@@ -626,4 +827,3 @@ components:
       in: header
       description: >
         API key required to access all endpoints of the SwissTopo WebMap Semantic Filtering API.
-

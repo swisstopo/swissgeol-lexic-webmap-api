@@ -13,6 +13,7 @@ export type FilterId =
 export interface FilterDefinition {
   id: FilterId;
   name: string;
+  title: string;
   description: string;
 }
 
@@ -29,6 +30,26 @@ export interface VocabularyDefinition {
   name: string;
 }
 
+export type VocabularyLanguage = "en" | "it" | "de" | "fr";
+
+export type VocabularyBreadcrumbMap = Record<number, string>;
+
+export interface VocabularyTermLocalization {
+  label: string;
+  description: string;
+  breadcrumbs: VocabularyBreadcrumbMap;
+}
+
+export interface VocabularyTermTranslations
+  extends Partial<Record<VocabularyLanguage, VocabularyTermLocalization>> {
+  en: VocabularyTermLocalization;
+}
+
+export interface VocabularyTermDefinition {
+  term: string;
+  translations: VocabularyTermTranslations;
+}
+
 export interface WmsResponse {
   url: string;
   mimeType: string;
@@ -41,26 +62,31 @@ export const FILTER_CATALOG: Record<FilterId, FilterDefinition> = {
   "f-chronostrat-term": {
     id: "f-chronostrat-term",
     name: "Filter by Chronostratigraphy term",
+    title: "Filter by Chronostratigraphy term",
     description: "Filter by chronostratigraphic intervals",
   },
   "f-tectonic-term": {
     id: "f-tectonic-term",
     name: "Filter by Tectonic Units term",
+    title: "Filter by Tectonic Units term",
     description: "Filter by tectonic units",
   },
   "f-lithostrat-term": {
     id: "f-lithostrat-term",
     name: "Filter by Lithostratigraphy term",
+    title: "Filter by Lithostratigraphy term",
     description: "Filter by lithostratigraphic units",
   },
   "f-lithology-term": {
     id: "f-lithology-term",
     name: "Filter by Lithology term",
+    title: "Filter by Lithology term",
     description: "Filter by lithology classes",
   },
   "f-byAttribute": {
     id: "f-byAttribute",
     name: "Filter by Attribute",
+    title: "Filter by Attribute",
     description: "Filter by attribute key/value",
   },
 };
@@ -183,56 +209,480 @@ export const VOCABULARIES: VocabularyDefinition[] = [
   { id: "lithology", name: "Lithology" },
 ];
 
-export const VOCABULARY_TERMS: Record<string, string[]> = {
+export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]> = {
   "chronostratigraphy": [
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Paleozoic",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cenozoic",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Mesozoic",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Proterozoic",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Paleogene",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Quaternary",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Neogene",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Tertiary",
-    "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cretaceous",
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
+      translations: {
+        en: {
+          label: "Phanerozoic",
+          description: "Mock description for the Phanerozoic chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Phanerozoic"},
+        },
+        it: {
+          label: "Fanerozoico",
+          description: "Descrizione mock per il termine cronostratigrafico Phanerozoic.",
+          breadcrumbs: {"0": "Home", "1": "Cronostratigrafia", "2": "Phanerozoic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Paleozoic",
+      translations: {
+        en: {
+          label: "Paleozoic",
+          description: "Mock description for the Paleozoic chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Paleozoic"},
+        },
+        it: {
+          label: "Paleozoico",
+          description: "Descrizione mock per il termine cronostratigrafico Paleozoic.",
+          breadcrumbs: {"0": "Home", "1": "Cronostratigrafia", "2": "Paleozoic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cenozoic",
+      translations: {
+        en: {
+          label: "Cenozoic",
+          description: "Mock description for the Cenozoic chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Cenozoic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Mesozoic",
+      translations: {
+        en: {
+          label: "Mesozoic",
+          description: "Mock description for the Mesozoic chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Mesozoic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Proterozoic",
+      translations: {
+        en: {
+          label: "Proterozoic",
+          description: "Mock description for the Proterozoic chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Proterozoic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Paleogene",
+      translations: {
+        en: {
+          label: "Paleogene",
+          description: "Mock description for the Paleogene chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Paleogene"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Quaternary",
+      translations: {
+        en: {
+          label: "Quaternary",
+          description: "Mock description for the Quaternary chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Quaternary"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Neogene",
+      translations: {
+        en: {
+          label: "Neogene",
+          description: "Mock description for the Neogene chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Neogene"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Tertiary",
+      translations: {
+        en: {
+          label: "Tertiary",
+          description: "Mock description for the Tertiary chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Tertiary"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cretaceous",
+      translations: {
+        en: {
+          label: "Cretaceous",
+          description: "Mock description for the Cretaceous chronostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Cretaceous"},
+        },
+      },
+    },
   ],
   "tectonic-units": [
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/BresseGraben",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/SouthGermanPlatform",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/DetachedNorthAlpineForeland",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/ExternalFoldedJura",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/SubalpineMolasse",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/InternalFoldedJuraAndForelandPlateau",
-    "https://dev-lexic.swissgeol.ch/TectonicUnits/HegauVolcanicSuite",
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+      translations: {
+        en: {
+          label: "AutochthonousNorthAlpineForeland",
+          description:
+            "Mock description for the AutochthonousNorthAlpineForeland tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "AutochthonousNorthAlpineForeland"},
+        },
+        it: {
+          label: "AutochthonousNorthAlpineForeland",
+          description:
+            "Descrizione mock per il termine di unita tettoniche AutochthonousNorthAlpineForeland.",
+          breadcrumbs: {"0": "Home", "1": "Unita tettoniche", "2": "AutochthonousNorthAlpineForeland"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/BresseGraben",
+      translations: {
+        en: {
+          label: "BresseGraben",
+          description: "Mock description for the BresseGraben tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "BresseGraben"},
+        },
+        it: {
+          label: "BresseGraben",
+          description: "Descrizione mock per il termine di unita tettoniche BresseGraben.",
+          breadcrumbs: {"0": "Home", "1": "Unita tettoniche", "2": "BresseGraben"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben",
+      translations: {
+        en: {
+          label: "UpperRhineGraben",
+          description: "Mock description for the UpperRhineGraben tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "UpperRhineGraben"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/SouthGermanPlatform",
+      translations: {
+        en: {
+          label: "SouthGermanPlatform",
+          description: "Mock description for the SouthGermanPlatform tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "SouthGermanPlatform"},
+        },
+      },
+    },
+    {
+      term:
+        "https://dev-lexic.swissgeol.ch/TectonicUnits/TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
+      translations: {
+        en: {
+          label: "TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
+          description:
+            "Mock description for the TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland tectonic units term.",
+          breadcrumbs: {
+            "0": "Home",
+            "1": "Tectonic Units",
+            "2": "TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
+          },
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/DetachedNorthAlpineForeland",
+      translations: {
+        en: {
+          label: "DetachedNorthAlpineForeland",
+          description:
+            "Mock description for the DetachedNorthAlpineForeland tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "DetachedNorthAlpineForeland"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/ExternalFoldedJura",
+      translations: {
+        en: {
+          label: "ExternalFoldedJura",
+          description: "Mock description for the ExternalFoldedJura tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "ExternalFoldedJura"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/SubalpineMolasse",
+      translations: {
+        en: {
+          label: "SubalpineMolasse",
+          description: "Mock description for the SubalpineMolasse tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "SubalpineMolasse"},
+        },
+      },
+    },
+    {
+      term:
+        "https://dev-lexic.swissgeol.ch/TectonicUnits/InternalFoldedJuraAndForelandPlateau",
+      translations: {
+        en: {
+          label: "InternalFoldedJuraAndForelandPlateau",
+          description:
+            "Mock description for the InternalFoldedJuraAndForelandPlateau tectonic units term.",
+          breadcrumbs: {
+            "0": "Home",
+            "1": "Tectonic Units",
+            "2": "InternalFoldedJuraAndForelandPlateau",
+          },
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/TectonicUnits/HegauVolcanicSuite",
+      translations: {
+        en: {
+          label: "HegauVolcanicSuite",
+          description: "Mock description for the HegauVolcanicSuite tectonic units term.",
+          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "HegauVolcanicSuite"},
+        },
+      },
+    },
   ],
   "lithostratigraphy": [
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Grenzposidonienschichten",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch4",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch5",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2a",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2b",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3a",
-    "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3b",
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
+      translations: {
+        en: {
+          label: "Servino",
+          description: "Mock description for the Servino lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Servino"},
+        },
+        it: {
+          label: "Servino",
+          description: "Descrizione mock per il termine litostratigrafico Servino.",
+          breadcrumbs: {"0": "Home", "1": "Litostratigrafia", "2": "Servino"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Grenzposidonienschichten",
+      translations: {
+        en: {
+          label: "Grenzposidonienschichten",
+          description:
+            "Mock description for the Grenzposidonienschichten lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Grenzposidonienschichten"},
+        },
+        it: {
+          label: "Grenzposidonienschichten",
+          description:
+            "Descrizione mock per il termine litostratigrafico Grenzposidonienschichten.",
+          breadcrumbs: {"0": "Home", "1": "Litostratigrafia", "2": "Grenzposidonienschichten"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2",
+      translations: {
+        en: {
+          label: "Flysch2",
+          description: "Mock description for the Flysch2 lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3",
+      translations: {
+        en: {
+          label: "Flysch3",
+          description: "Mock description for the Flysch3 lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch4",
+      translations: {
+        en: {
+          label: "Flysch4",
+          description: "Mock description for the Flysch4 lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch4"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch5",
+      translations: {
+        en: {
+          label: "Flysch5",
+          description: "Mock description for the Flysch5 lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch5"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2a",
+      translations: {
+        en: {
+          label: "Flysch2a",
+          description: "Mock description for the Flysch2a lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2a"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2b",
+      translations: {
+        en: {
+          label: "Flysch2b",
+          description: "Mock description for the Flysch2b lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2b"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3a",
+      translations: {
+        en: {
+          label: "Flysch3a",
+          description: "Mock description for the Flysch3a lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3a"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch3b",
+      translations: {
+        en: {
+          label: "Flysch3b",
+          description: "Mock description for the Flysch3b lithostratigraphy term.",
+          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3b"},
+        },
+      },
+    },
   ],
   "lithology": [
-    "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
-    "https://dev-lexic.swissgeol.ch/Lithology/RockMafic",
-    "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteBanded",
-    "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteGarnet",
-    "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteHornblende",
-    "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteMigmatitic",
-    "https://dev-lexic.swissgeol.ch/Lithology/RockCrystalline",
-    "https://dev-lexic.swissgeol.ch/Lithology/Eclogite",
-    "https://dev-lexic.swissgeol.ch/Lithology/Serpentinite",
-    "https://dev-lexic.swissgeol.ch/Lithology/Prasinite",
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
+      translations: {
+        en: {
+          label: "Amphibolite",
+          description: "Mock description for the Amphibolite lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Amphibolite"},
+        },
+        it: {
+          label: "Anfibolite",
+          description: "Descrizione mock per il termine litologico Amphibolite.",
+          breadcrumbs: {"0": "Home", "1": "Litologia", "2": "Amphibolite"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/RockMafic",
+      translations: {
+        en: {
+          label: "RockMafic",
+          description: "Mock description for the RockMafic lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "RockMafic"},
+        },
+        it: {
+          label: "Roccia mafica",
+          description: "Descrizione mock per il termine litologico RockMafic.",
+          breadcrumbs: {"0": "Home", "1": "Litologia", "2": "RockMafic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteBanded",
+      translations: {
+        en: {
+          label: "AmphiboliteBanded",
+          description: "Mock description for the AmphiboliteBanded lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteBanded"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteGarnet",
+      translations: {
+        en: {
+          label: "AmphiboliteGarnet",
+          description: "Mock description for the AmphiboliteGarnet lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteGarnet"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteHornblende",
+      translations: {
+        en: {
+          label: "AmphiboliteHornblende",
+          description: "Mock description for the AmphiboliteHornblende lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteHornblende"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteMigmatitic",
+      translations: {
+        en: {
+          label: "AmphiboliteMigmatitic",
+          description: "Mock description for the AmphiboliteMigmatitic lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteMigmatitic"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/RockCrystalline",
+      translations: {
+        en: {
+          label: "RockCrystalline",
+          description: "Mock description for the RockCrystalline lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "RockCrystalline"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/Eclogite",
+      translations: {
+        en: {
+          label: "Eclogite",
+          description: "Mock description for the Eclogite lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Eclogite"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/Serpentinite",
+      translations: {
+        en: {
+          label: "Serpentinite",
+          description: "Mock description for the Serpentinite lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Serpentinite"},
+        },
+      },
+    },
+    {
+      term: "https://dev-lexic.swissgeol.ch/Lithology/Prasinite",
+      translations: {
+        en: {
+          label: "Prasinite",
+          description: "Mock description for the Prasinite lithology term.",
+          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Prasinite"},
+        },
+      },
+    },
   ],
 };
+
+export const VOCABULARY_TERMS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(VOCABULARY_TERM_DETAILS).map(([vocabularyId, terms]) => [
+    vocabularyId,
+    terms.map((termDefinition) => termDefinition.term),
+  ])
+) as Record<string, string[]>;
 
 export const VOCABULARY_FILTER_MAP: Record<string, FilterId> = {
   "chronostratigraphy": "f-chronostrat-term",

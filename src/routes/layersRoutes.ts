@@ -4,15 +4,12 @@
 
 import { FastifyInstance } from "fastify";
 import {
-  getLayerAttributeList,
-  getLayerFilters,
-  getLayers,
+  getLayerAttributeListHandler,
+  getLayerDefaultFiltersHandler,
+  getLayerFiltersHandler,
+  getLayersHandler,
 } from "../controllers/layersController";
-import {
-  getLayerAttributeListRouteSchema,
-  getLayerFiltersRouteSchema,
-  getLayersRouteSchema,
-} from "../docs/openapiSchemas";
+import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
  * Registers all layer endpoints under the active route prefix.
@@ -20,15 +17,28 @@ import {
  * @returns Promise resolved when route registration is complete.
  */
 export const registerLayerRoutes = async (fastify: FastifyInstance) => {
-  fastify.get("/layers", { schema: getLayersRouteSchema }, getLayers);
-  fastify.get(
-    "/layers/:layerId/filters",
-    { schema: getLayerFiltersRouteSchema },
-    getLayerFilters
-  );
-  fastify.get(
-    "/layers/:layerId/attributeList",
-    { schema: getLayerAttributeListRouteSchema },
-    getLayerAttributeList
-  );
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/layers",
+    fastifyPath: "/layers",
+    handler: getLayersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/layers/{layerId}/filters",
+    fastifyPath: "/layers/:layerId/filters",
+    handler: getLayerFiltersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/layers/{layerId}/defaultFilters",
+    fastifyPath: "/layers/:layerId/defaultFilters",
+    handler: getLayerDefaultFiltersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/layers/{layerId}/attributeList",
+    fastifyPath: "/layers/:layerId/attributeList",
+    handler: getLayerAttributeListHandler,
+  });
 };

@@ -2,17 +2,12 @@
  * @fileoverview HTTP handler for WMS resolution endpoint.
  */
 
-import { FastifyReply, FastifyRequest } from "fastify";
 import { getWmsResponse } from "../services/wmsService";
 import { WEBMAP_ID } from "../data/mockData";
 import { getLayerById } from "../services/layersService";
-import { sendError } from "../utils/errors";
-
-interface WmsRequestBody {
-  webmapId?: string;
-  layerId?: string;
-  filters?: unknown[];
-}
+import type { OpenApiHandler, OpenApiRequest } from "../openapi/types";
+import { jsonResponse } from "../openapi/types";
+import { buildErrorBody } from "../utils/errors";
 
 /**
  * Validates WMS request input and returns the resolved WMS response payload.
@@ -22,26 +17,19 @@ interface WmsRequestBody {
  * @param reply Fastify reply object.
  * @returns Fastify reply containing the resolved WMS payload or a standardized error response.
  */
-export const postWms = async (
-  req: FastifyRequest<{ Body: WmsRequestBody }>,
-  reply: FastifyReply
+export const postWmsHandler: OpenApiHandler<"/wms", "post"> = async (
+  request: OpenApiRequest<"/wms", "post">
 ) => {
-  const body = req.body || {};
-  const webmapId = body.webmapId;
-  const layerId = body.layerId;
-
-  if (typeof webmapId !== "string" || typeof layerId !== "string") {
-    return sendError(reply, 400, "Missing webmapId or layerId");
-  }
+  const { webmapId, layerId } = request.body;
 
   if (webmapId !== WEBMAP_ID) {
-    return sendError(reply, 404, "Webmap not found");
+    return jsonResponse<"/wms", "post">(404, buildErrorBody(404, "Webmap not found"));
   }
 
   const layer = getLayerById(layerId);
   if (!layer) {
-    return sendError(reply, 404, "Layer not found");
+    return jsonResponse<"/wms", "post">(404, buildErrorBody(404, "Layer not found"));
   }
 
-  return reply.send(getWmsResponse(layer.id));
+  return jsonResponse<"/wms", "post">(200, getWmsResponse(layer.id));
 };

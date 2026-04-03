@@ -3,8 +3,8 @@
  */
 
 import { FastifyInstance } from "fastify";
-import { postWms } from "../controllers/wmsController";
-import { postWmsRouteSchema } from "../docs/openapiSchemas";
+import { postWmsHandler } from "../controllers/wmsController";
+import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
  * Registers the endpoint used to resolve WMS access details.
@@ -12,5 +12,10 @@ import { postWmsRouteSchema } from "../docs/openapiSchemas";
  * @returns Promise resolved when route registration is complete.
  */
 export const registerWmsRoutes = async (fastify: FastifyInstance) => {
-  fastify.post("/wms", { schema: postWmsRouteSchema }, postWms);
+  registerOpenApiRoute(fastify, {
+    method: "post",
+    specPath: "/wms",
+    fastifyPath: "/wms",
+    handler: postWmsHandler,
+  });
 };

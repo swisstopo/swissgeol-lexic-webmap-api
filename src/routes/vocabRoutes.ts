@@ -4,21 +4,17 @@
 
 import { FastifyInstance } from "fastify";
 import {
-  getVocabularies,
-  getVocabularyLayersById,
-  getVocabularyTermsById,
+  getChronostratigraphyLayersHandler,
+  getChronostratigraphyTermsHandler,
+  getVocabulariesHandler,
+  getLithologyLayersHandler,
+  getLithologyTermsHandler,
+  getLithostratigraphyLayersHandler,
+  getLithostratigraphyTermsHandler,
+  getTectonicUnitsLayersHandler,
+  getTectonicUnitsTermsHandler,
 } from "../controllers/vocabController";
-import {
-  getChronostratigraphyLayersRouteSchema,
-  getChronostratigraphyTermsRouteSchema,
-  getLithologyLayersRouteSchema,
-  getLithologyTermsRouteSchema,
-  getLithostratigraphyLayersRouteSchema,
-  getLithostratigraphyTermsRouteSchema,
-  getTectonicUnitsLayersRouteSchema,
-  getTectonicUnitsTermsRouteSchema,
-  getVocabulariesRouteSchema,
-} from "../docs/openapiSchemas";
+import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
  * Registers vocabulary listing, terms, and layer reference endpoints.
@@ -26,49 +22,58 @@ import {
  * @returns Promise resolved when route registration is complete.
  */
 export const registerVocabRoutes = async (fastify: FastifyInstance) => {
-  fastify.get(
-    "/vocabularies",
-    { schema: getVocabulariesRouteSchema },
-    getVocabularies
-  );
-  fastify.get(
-    "/vocabularies/chronostratigraphy/terms",
-    { schema: getChronostratigraphyTermsRouteSchema },
-    (_req, reply) => getVocabularyTermsById("chronostratigraphy", reply)
-  );
-  fastify.get(
-    "/vocabularies/chronostratigraphy/layers",
-    { schema: getChronostratigraphyLayersRouteSchema },
-    (_req, reply) => getVocabularyLayersById("chronostratigraphy", reply)
-  );
-  fastify.get(
-    "/vocabularies/tectonic-units/terms",
-    { schema: getTectonicUnitsTermsRouteSchema },
-    (_req, reply) => getVocabularyTermsById("tectonic-units", reply)
-  );
-  fastify.get(
-    "/vocabularies/tectonic-units/layers",
-    { schema: getTectonicUnitsLayersRouteSchema },
-    (_req, reply) => getVocabularyLayersById("tectonic-units", reply)
-  );
-  fastify.get(
-    "/vocabularies/lithostratigraphy/terms",
-    { schema: getLithostratigraphyTermsRouteSchema },
-    (_req, reply) => getVocabularyTermsById("lithostratigraphy", reply)
-  );
-  fastify.get(
-    "/vocabularies/lithostratigraphy/layers",
-    { schema: getLithostratigraphyLayersRouteSchema },
-    (_req, reply) => getVocabularyLayersById("lithostratigraphy", reply)
-  );
-  fastify.get(
-    "/vocabularies/lithology/terms",
-    { schema: getLithologyTermsRouteSchema },
-    (_req, reply) => getVocabularyTermsById("lithology", reply)
-  );
-  fastify.get(
-    "/vocabularies/lithology/layers",
-    { schema: getLithologyLayersRouteSchema },
-    (_req, reply) => getVocabularyLayersById("lithology", reply)
-  );
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies",
+    fastifyPath: "/vocabularies",
+    handler: getVocabulariesHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/chronostratigraphy/terms",
+    fastifyPath: "/vocabularies/chronostratigraphy/terms",
+    handler: getChronostratigraphyTermsHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/chronostratigraphy/layers",
+    fastifyPath: "/vocabularies/chronostratigraphy/layers",
+    handler: getChronostratigraphyLayersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/tectonic-units/terms",
+    fastifyPath: "/vocabularies/tectonic-units/terms",
+    handler: getTectonicUnitsTermsHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/tectonic-units/layers",
+    fastifyPath: "/vocabularies/tectonic-units/layers",
+    handler: getTectonicUnitsLayersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/lithostratigraphy/terms",
+    fastifyPath: "/vocabularies/lithostratigraphy/terms",
+    handler: getLithostratigraphyTermsHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/lithostratigraphy/layers",
+    fastifyPath: "/vocabularies/lithostratigraphy/layers",
+    handler: getLithostratigraphyLayersHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/lithology/terms",
+    fastifyPath: "/vocabularies/lithology/terms",
+    handler: getLithologyTermsHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/vocabularies/lithology/layers",
+    fastifyPath: "/vocabularies/lithology/layers",
+    handler: getLithologyLayersHandler,
+  });
 };

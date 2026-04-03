@@ -1,8 +1,6 @@
 /**
- * @fileoverview Error response helpers to keep error formatting consistent.
+ * @fileoverview Error helpers to keep API error payloads consistent across controllers and hooks.
  */
-
-import { FastifyReply } from "fastify";
 
 /**
  * Canonical error payload returned by API endpoints.
@@ -13,14 +11,12 @@ export interface ErrorResponse {
 }
 
 /**
- * Sends a standardized error response with status code and message.
- * @param reply Fastify reply object.
- * @param statusCode HTTP status code to be applied to the response.
- * @param message Human-readable error message.
- * @returns Fastify reply carrying the standardized error payload.
+ * Builds the standardized API error payload.
  */
-export const sendError = (
-  reply: FastifyReply,
+export const buildErrorBody = (
   statusCode: number,
   message: string
-) => reply.status(statusCode).send({ code: statusCode, message });
+): ErrorResponse => ({
+  code: statusCode,
+  message,
+});

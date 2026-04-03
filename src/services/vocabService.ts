@@ -6,8 +6,19 @@ import {
   LAYERS,
   VOCABULARIES,
   VOCABULARY_FILTER_MAP,
-  VOCABULARY_TERMS,
+  VOCABULARY_TERM_DETAILS,
+  type VocabularyLanguage,
 } from "../data/mockData";
+
+const DEFAULT_VOCABULARY_LANGUAGE: VocabularyLanguage = "en";
+
+const resolveVocabularyLanguage = (language?: string): VocabularyLanguage => {
+  if (language === "it" || language === "de" || language === "fr") {
+    return language;
+  }
+
+  return DEFAULT_VOCABULARY_LANGUAGE;
+};
 
 /**
  * Response contract for vocabulary listing endpoints.
@@ -20,7 +31,14 @@ export interface VocabulariesResponse {
  * Response contract for vocabulary terms endpoints.
  */
 export interface VocabularyTermsResponse {
-  terms: string[];
+  terms: VocabularyTermSummary[];
+}
+
+export interface VocabularyTermSummary {
+  term: string;
+  label: string;
+  description: string;
+  breadcrumbs: Record<number, string>;
 }
 
 /**
@@ -43,12 +61,28 @@ export const getVocabulariesResponse = (): VocabulariesResponse => ({
 });
 
 export const getVocabularyTerms = (
-  vocabularyId: string
+  vocabularyId: string,
+  language?: string
 ): VocabularyTermsResponse | null => {
-  const terms = VOCABULARY_TERMS[vocabularyId];
+  const terms = VOCABULARY_TERM_DETAILS[vocabularyId];
   if (!terms) return null;
 
-  return { terms };
+  const resolvedLanguage = resolveVocabularyLanguage(language);
+
+  return {
+    terms: terms.map((termDefinition) => {
+      const translation =
+        termDefinition.translations[resolvedLanguage] ??
+        termDefinition.translations[DEFAULT_VOCABULARY_LANGUAGE];
+
+      return {
+        term: termDefinition.term,
+        label: translation.label,
+        description: translation.description,
+        breadcrumbs: translation.breadcrumbs,
+      };
+    }),
+  };
 };
 
 export const getVocabularyLayers = (

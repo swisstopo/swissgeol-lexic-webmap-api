@@ -6,6 +6,8 @@ The server must be running and reachable via BASE_URL.
 import json
 import os
 import sys
+import urllib.error
+import urllib.parse
 import urllib.request
 
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000/v1").rstrip("/")
@@ -13,11 +15,11 @@ BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000/v1").rstrip("/")
 EXPECTED_WEBMAP_ID = "SwissTopoMap"
 
 FILTER_CATALOG = {
-    "f-chronostrat-term": {"id": "f-chronostrat-term", "name": "Filter by Chronostratigraphy term", "description": "Filter by chronostratigraphic intervals"},
-    "f-tectonic-term": {"id": "f-tectonic-term", "name": "Filter by Tectonic Units term", "description": "Filter by tectonic units"},
-    "f-lithostrat-term": {"id": "f-lithostrat-term", "name": "Filter by Lithostratigraphy term", "description": "Filter by lithostratigraphic units"},
-    "f-lithology-term": {"id": "f-lithology-term", "name": "Filter by Lithology term", "description": "Filter by lithology classes"},
-    "f-byAttribute": {"id": "f-byAttribute", "name": "Filter by Attribute", "description": "Filter by attribute key/value"},
+    "f-chronostrat-term": {"id": "f-chronostrat-term", "name": "Filter by Chronostratigraphy term", "title": "Filter by Chronostratigraphy term", "description": "Filter by chronostratigraphic intervals"},
+    "f-tectonic-term": {"id": "f-tectonic-term", "name": "Filter by Tectonic Units term", "title": "Filter by Tectonic Units term", "description": "Filter by tectonic units"},
+    "f-lithostrat-term": {"id": "f-lithostrat-term", "name": "Filter by Lithostratigraphy term", "title": "Filter by Lithostratigraphy term", "description": "Filter by lithostratigraphic units"},
+    "f-lithology-term": {"id": "f-lithology-term", "name": "Filter by Lithology term", "title": "Filter by Lithology term", "description": "Filter by lithology classes"},
+    "f-byAttribute": {"id": "f-byAttribute", "name": "Filter by Attribute", "title": "Filter by Attribute", "description": "Filter by attribute key/value"},
 }
 
 LAYERS = [
@@ -54,6 +56,89 @@ VOCAB_FILTER_MAP = {
     "lithology": "f-lithology-term",
 }
 
+VOCAB_TERM_SAMPLES = {
+    "chronostratigraphy": {
+        "default_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
+            "label": "Phanerozoic",
+            "description": "Mock description for the Phanerozoic chronostratigraphy term.",
+            "breadcrumbs": {"0": "Home", "1": "Chronostratigraphy", "2": "Phanerozoic"},
+        },
+        "italian_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
+            "label": "Fanerozoico",
+            "description": "Descrizione mock per il termine cronostratigrafico Phanerozoic.",
+            "breadcrumbs": {"0": "Home", "1": "Cronostratigrafia", "2": "Phanerozoic"},
+        },
+        "italian_fallback": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cenozoic",
+            "label": "Cenozoic",
+            "description": "Mock description for the Cenozoic chronostratigraphy term.",
+            "breadcrumbs": {"0": "Home", "1": "Chronostratigraphy", "2": "Cenozoic"},
+        },
+    },
+    "tectonic-units": {
+        "default_first": {
+            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+            "label": "AutochthonousNorthAlpineForeland",
+            "description": "Mock description for the AutochthonousNorthAlpineForeland tectonic units term.",
+            "breadcrumbs": {"0": "Home", "1": "Tectonic Units", "2": "AutochthonousNorthAlpineForeland"},
+        },
+        "italian_first": {
+            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+            "label": "AutochthonousNorthAlpineForeland",
+            "description": "Descrizione mock per il termine di unita tettoniche AutochthonousNorthAlpineForeland.",
+            "breadcrumbs": {"0": "Home", "1": "Unita tettoniche", "2": "AutochthonousNorthAlpineForeland"},
+        },
+        "italian_fallback": {
+            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben",
+            "label": "UpperRhineGraben",
+            "description": "Mock description for the UpperRhineGraben tectonic units term.",
+            "breadcrumbs": {"0": "Home", "1": "Tectonic Units", "2": "UpperRhineGraben"},
+        },
+    },
+    "lithostratigraphy": {
+        "default_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
+            "label": "Servino",
+            "description": "Mock description for the Servino lithostratigraphy term.",
+            "breadcrumbs": {"0": "Home", "1": "Lithostratigraphy", "2": "Servino"},
+        },
+        "italian_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
+            "label": "Servino",
+            "description": "Descrizione mock per il termine litostratigrafico Servino.",
+            "breadcrumbs": {"0": "Home", "1": "Litostratigrafia", "2": "Servino"},
+        },
+        "italian_fallback": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2",
+            "label": "Flysch2",
+            "description": "Mock description for the Flysch2 lithostratigraphy term.",
+            "breadcrumbs": {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2"},
+        },
+    },
+    "lithology": {
+        "default_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
+            "label": "Amphibolite",
+            "description": "Mock description for the Amphibolite lithology term.",
+            "breadcrumbs": {"0": "Home", "1": "Lithology", "2": "Amphibolite"},
+        },
+        "italian_first": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
+            "label": "Anfibolite",
+            "description": "Descrizione mock per il termine litologico Amphibolite.",
+            "breadcrumbs": {"0": "Home", "1": "Litologia", "2": "Amphibolite"},
+        },
+        "italian_fallback": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteBanded",
+            "label": "AmphiboliteBanded",
+            "description": "Mock description for the AmphiboliteBanded lithology term.",
+            "breadcrumbs": {"0": "Home", "1": "Lithology", "2": "AmphiboliteBanded"},
+        },
+    },
+}
+
 EXPECTED_WMS_RESPONSE = {
     "url": "https://wms.example.com/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=gc_bedrock&crs=EPSG:3857&bbox=700000,100000,800000,200000&width=256&height=256&format=image/png&transparent=true&CQL_FILTER=1=1",
     "mimeType": "image/png",
@@ -69,6 +154,16 @@ def http_get(path):
     with urllib.request.urlopen(BASE_URL + path) as response:
         body = response.read().decode("utf-8")
         return json.loads(body)
+
+
+def http_get_error(path):
+    try:
+        with urllib.request.urlopen(BASE_URL + path) as response:
+            body = response.read().decode("utf-8")
+            return response.status, json.loads(body)
+    except urllib.error.HTTPError as error:
+        body = error.read().decode("utf-8")
+        return error.code, json.loads(body)
 
 
 def http_post(path, payload):
@@ -97,7 +192,12 @@ def build_expected_layers_response():
     layer_summaries = []
     for layer in LAYERS:
         available_filters = [
-            {"id": fid, "name": FILTER_CATALOG[fid]["name"]}
+            {
+                "id": fid,
+                "name": FILTER_CATALOG[fid]["name"],
+                "title": FILTER_CATALOG[fid]["title"],
+                "description": FILTER_CATALOG[fid]["description"],
+            }
             for fid in layer["filters"]
         ]
         layer_summaries.append(
@@ -119,13 +219,49 @@ def build_expected_vocabulary_layers_response(vocabulary_id):
     return {"layers": layers}
 
 
+def build_expected_default_filters_response(layer_id, term):
+    if "/Chronostratigraphy/" in term:
+        return {"layerId": layer_id, "filters": []}
+
+    vocabulary_to_filter_id = {
+        "/TectonicUnits/": "f-tectonic-term",
+        "/Lithostratigraphy/": "f-lithostrat-term",
+        "/Lithology/": "f-lithology-term",
+    }
+    for marker, filter_id in vocabulary_to_filter_id.items():
+        if marker in term:
+            return {
+                "layerId": layer_id,
+                "filters": [
+                    {
+                        "filterId": filter_id,
+                        "parameters": {
+                            "term": term,
+                            "includeNarrowers": True,
+                        },
+                    }
+                ],
+            }
+
+    raise AssertionError(f"Unsupported term marker for test fixture: {term}")
+
+
+def assert_vocabulary_terms_response(vocabulary_id, response, sample_key, index, label):
+    assert_equal(len(response["terms"]), len(VOCAB_TERMS[vocabulary_id]), f"{label} count")
+    assert_equal(
+        response["terms"][index],
+        VOCAB_TERM_SAMPLES[vocabulary_id][sample_key],
+        label,
+    )
+
+
 def run():
-    layers_response = http_get("/layers")
+    layers_response = http_get("/layers?lang=it")
     expected_layers = build_expected_layers_response()
     assert_equal(layers_response, expected_layers, "GET /layers")
 
     for layer in LAYERS:
-        filters_resp = http_get(f"/layers/{layer['id']}/filters")
+        filters_resp = http_get(f"/layers/{layer['id']}/filters?lang=it")
         expected_filters = [FILTER_CATALOG[fid] for fid in layer["filters"]]
         assert_equal(
             filters_resp,
@@ -144,11 +280,38 @@ def run():
     assert_equal(vocab_response, {"vocabularies": VOCABULARIES}, "GET /vocabularies")
 
     for vocab in VOCABULARIES:
-        terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms")
-        assert_equal(
-            terms_resp,
-            {"terms": VOCAB_TERMS[vocab["id"]]},
-            f"GET /vocabularies/{vocab['id']}/terms",
+        default_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms")
+        assert_vocabulary_terms_response(
+            vocab["id"],
+            default_terms_resp,
+            "default_first",
+            0,
+            f"GET /vocabularies/{vocab['id']}/terms default language",
+        )
+
+        italian_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms?lang=it")
+        assert_vocabulary_terms_response(
+            vocab["id"],
+            italian_terms_resp,
+            "italian_first",
+            0,
+            f"GET /vocabularies/{vocab['id']}/terms italian translation",
+        )
+        assert_vocabulary_terms_response(
+            vocab["id"],
+            italian_terms_resp,
+            "italian_fallback",
+            2,
+            f"GET /vocabularies/{vocab['id']}/terms italian fallback",
+        )
+
+        german_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms?lang=de")
+        assert_vocabulary_terms_response(
+            vocab["id"],
+            german_terms_resp,
+            "default_first",
+            0,
+            f"GET /vocabularies/{vocab['id']}/terms german fallback",
         )
 
         vocab_layers_resp = http_get(f"/vocabularies/{vocab['id']}/layers")
@@ -157,6 +320,69 @@ def run():
             build_expected_vocabulary_layers_response(vocab["id"]),
             f"GET /vocabularies/{vocab['id']}/layers",
         )
+
+    default_filters_cases = [
+        (
+            "gc_bedrock",
+            VOCAB_TERMS["chronostratigraphy"][0],
+            build_expected_default_filters_response(
+                "gc_bedrock", VOCAB_TERMS["chronostratigraphy"][0]
+            ),
+            "GET /layers/gc_bedrock/defaultFilters chronostratigraphy",
+        ),
+        (
+            "gc_bedrock",
+            VOCAB_TERMS["lithology"][0],
+            build_expected_default_filters_response(
+                "gc_bedrock", VOCAB_TERMS["lithology"][0]
+            ),
+            "GET /layers/gc_bedrock/defaultFilters lithology",
+        ),
+        (
+            "tecto_units_augm",
+            VOCAB_TERMS["tectonic-units"][2],
+            build_expected_default_filters_response(
+                "tecto_units_augm", VOCAB_TERMS["tectonic-units"][2]
+            ),
+            "GET /layers/tecto_units_augm/defaultFilters tectonic-units",
+        ),
+    ]
+
+    for layer_id, term, expected_response, label in default_filters_cases:
+        response = http_get(
+            f"/layers/{layer_id}/defaultFilters?term={urllib.parse.quote(term, safe='')}"
+        )
+        assert_equal(response, expected_response, label)
+
+    error_cases = [
+        (
+            "gc_unco_deposits",
+            VOCAB_TERMS["lithology"][0],
+            400,
+            {
+                "code": 400,
+                "message": "Layer does not support the vocabulary inferred from the provided term",
+            },
+            "GET /layers/gc_unco_deposits/defaultFilters unsupported vocabulary",
+        ),
+        (
+            "gc_bedrock",
+            "https://dev-lexic.swissgeol.ch/UnknownVocabulary/Nope",
+            400,
+            {
+                "code": 400,
+                "message": "Layer does not support the vocabulary inferred from the provided term",
+            },
+            "GET /layers/gc_bedrock/defaultFilters unknown term",
+        ),
+    ]
+
+    for layer_id, term, expected_status, expected_body, label in error_cases:
+        status, body = http_get_error(
+            f"/layers/{layer_id}/defaultFilters?term={urllib.parse.quote(term, safe='')}"
+        )
+        assert_equal(status, expected_status, f"{label} status")
+        assert_equal(body, expected_body, label)
 
     wms_body = {
         "webmapId": EXPECTED_WEBMAP_ID,
