@@ -3,21 +3,18 @@
  */
 
 import {
-  getVocabulariesResponse,
+  getGraphDbVocabulariesResponse,
   getVocabularyLayers as getVocabularyLayersData,
-  getVocabularyTerms as getVocabularyTermsData,
 } from "../services/vocabService";
 import type { OpenApiHandler, OpenApiRequest } from "../openapi/types";
 import { jsonResponse } from "../openapi/types";
+import type { PublicVocabularyId } from "../graphdb/types";
+import { getGraphDbVocabularyTermsResponse } from "../services/vocabularyTermsService";
 
-const getRequiredVocabularyTerms = (vocabularyId: string, language?: string) => {
-  const response = getVocabularyTermsData(vocabularyId, language);
-  if (!response) {
-    throw new Error(`Missing mock vocabulary terms for ${vocabularyId}`);
-  }
-
-  return response;
-};
+const getRequiredVocabularyTerms = async (
+  vocabularyId: PublicVocabularyId,
+  language?: string
+) => getGraphDbVocabularyTermsResponse(vocabularyId, language);
 
 const getRequiredVocabularyLayers = (vocabularyId: string) => {
   const response = getVocabularyLayersData(vocabularyId);
@@ -37,8 +34,11 @@ const getRequiredVocabularyLayers = (vocabularyId: string) => {
 export const getVocabulariesHandler: OpenApiHandler<
   "/vocabularies",
   "get"
-> = async (_request: OpenApiRequest<"/vocabularies", "get">) =>
-  jsonResponse<"/vocabularies", "get">(200, getVocabulariesResponse());
+> = async (request: OpenApiRequest<"/vocabularies", "get">) =>
+  jsonResponse<"/vocabularies", "get">(
+    200,
+    await getGraphDbVocabulariesResponse(request.query.lang, request.log)
+  );
 
 /**
  * Returns terms for the vocabulary identified by the route parameter.
@@ -55,7 +55,7 @@ export const getChronostratigraphyTermsHandler: OpenApiHandler<
 ) =>
   jsonResponse<"/vocabularies/chronostratigraphy/terms", "get">(
     200,
-    getRequiredVocabularyTerms("chronostratigraphy", request.query.lang)
+    await getRequiredVocabularyTerms("chronostratigraphy", request.query.lang)
   );
 
 export const getTectonicUnitsTermsHandler: OpenApiHandler<
@@ -64,7 +64,7 @@ export const getTectonicUnitsTermsHandler: OpenApiHandler<
 > = async (request: OpenApiRequest<"/vocabularies/tectonic-units/terms", "get">) =>
   jsonResponse<"/vocabularies/tectonic-units/terms", "get">(
     200,
-    getRequiredVocabularyTerms("tectonic-units", request.query.lang)
+    await getRequiredVocabularyTerms("tectonic-units", request.query.lang)
   );
 
 export const getLithostratigraphyTermsHandler: OpenApiHandler<
@@ -75,7 +75,7 @@ export const getLithostratigraphyTermsHandler: OpenApiHandler<
 ) =>
   jsonResponse<"/vocabularies/lithostratigraphy/terms", "get">(
     200,
-    getRequiredVocabularyTerms("lithostratigraphy", request.query.lang)
+    await getRequiredVocabularyTerms("lithostratigraphy", request.query.lang)
   );
 
 export const getLithologyTermsHandler: OpenApiHandler<
@@ -84,7 +84,7 @@ export const getLithologyTermsHandler: OpenApiHandler<
 > = async (request: OpenApiRequest<"/vocabularies/lithology/terms", "get">) =>
   jsonResponse<"/vocabularies/lithology/terms", "get">(
     200,
-    getRequiredVocabularyTerms("lithology", request.query.lang)
+    await getRequiredVocabularyTerms("lithology", request.query.lang)
   );
 
 /**

@@ -38,7 +38,14 @@ LAYERS = [
 VOCABULARIES = [
     {"id": "chronostratigraphy", "name": "Chronostratigraphy"},
     {"id": "tectonic-units", "name": "Tectonic Units"},
-    {"id": "lithostratigraphy", "name": "Lithostratigraphy"},
+    {"id": "lithostratigraphy", "name": "Lithostratigraphic Units"},
+    {"id": "lithology", "name": "Lithology"},
+]
+
+VOCABULARIES_ITALIAN = [
+    {"id": "chronostratigraphy", "name": "Cronostratigrafia"},
+    {"id": "tectonic-units", "name": "Unità tettoniche"},
+    {"id": "lithostratigraphy", "name": "Lithostratigraphic Units"},
     {"id": "lithology", "name": "Lithology"},
 ]
 
@@ -56,85 +63,109 @@ VOCAB_FILTER_MAP = {
     "lithology": "f-lithology-term",
 }
 
-VOCAB_TERM_SAMPLES = {
+TERM_RESPONSE_SAMPLES = {
     "chronostratigraphy": {
-        "default_first": {
+        "default": {
             "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
             "label": "Phanerozoic",
-            "description": "Mock description for the Phanerozoic chronostratigraphy term.",
-            "breadcrumbs": {"0": "Home", "1": "Chronostratigraphy", "2": "Phanerozoic"},
+            "description": "The Phanerozoic (approx. from 539 Ma ago to the Present) is the main (though not the longest) eon of Earth history, encompassing the Paleozoic, Mesozoic and Cenonoic eras.",
+            "breadcrumbs": {},
         },
-        "italian_first": {
-            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Phanerozoic",
-            "label": "Fanerozoico",
-            "description": "Descrizione mock per il termine cronostratigrafico Phanerozoic.",
-            "breadcrumbs": {"0": "Home", "1": "Cronostratigrafia", "2": "Phanerozoic"},
+        "italian": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Neogene",
+            "label": "Neogene",
+            "description": "The Neogene (approx. from 23 to 2,6 Ma; formal name for the «late Tertiary») is the middle geochronologic period of the Cenozoic, starting with the Aquitanian age (at the transition from the Paleogene period) and ending with the Piacenzian age (at the transition to the Quaternary period). It is subdivided into two epochs (Miocene and Pliocene).",
+            "breadcrumbs": {"0": "Fanerozoico", "1": "Cenozoico"},
         },
-        "italian_fallback": {
-            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Cenozoic",
-            "label": "Cenozoic",
-            "description": "Mock description for the Cenozoic chronostratigraphy term.",
-            "breadcrumbs": {"0": "Home", "1": "Chronostratigraphy", "2": "Cenozoic"},
+        "german": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Neogene",
+            "label": "Neogen",
+            "description": "The Neogene (approx. from 23 to 2,6 Ma; formal name for the «late Tertiary») is the middle geochronologic period of the Cenozoic, starting with the Aquitanian age (at the transition from the Paleogene period) and ending with the Piacenzian age (at the transition to the Quaternary period). It is subdivided into two epochs (Miocene and Pliocene).",
+            "breadcrumbs": {"0": "Phanerozoikum", "1": "Känozoikum"},
+        },
+        "french": {
+            "term": "https://dev-lexic.swissgeol.ch/Chronostratigraphy/Neogene",
+            "label": "Néogène",
+            "description": "The Neogene (approx. from 23 to 2,6 Ma; formal name for the «late Tertiary») is the middle geochronologic period of the Cenozoic, starting with the Aquitanian age (at the transition from the Paleogene period) and ending with the Piacenzian age (at the transition to the Quaternary period). It is subdivided into two epochs (Miocene and Pliocene).",
+            "breadcrumbs": {"0": "Phanérozoïque", "1": "Cénozoïque"},
         },
     },
     "tectonic-units": {
-        "default_first": {
+        "default": {
             "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
-            "label": "AutochthonousNorthAlpineForeland",
-            "description": "Mock description for the AutochthonousNorthAlpineForeland tectonic units term.",
-            "breadcrumbs": {"0": "Home", "1": "Tectonic Units", "2": "AutochthonousNorthAlpineForeland"},
+            "label": "Autochthonous North Alpine Foreland",
+            "description": "The Autochthonous North Alpine Foreland consists of the European platform with its Cenozoic graben structures of eastern France, southwestern Germany and northern Switzerland. The boundary between the Autochthonous North Alpine Foreland and the Detached North Alpine Foreland marks the northernmost limit of significant Alpine compressional deformation.",
+            "breadcrumbs": {"0": "North Alpine Foreland"},
         },
-        "italian_first": {
+        "italian": {
             "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
-            "label": "AutochthonousNorthAlpineForeland",
-            "description": "Descrizione mock per il termine di unita tettoniche AutochthonousNorthAlpineForeland.",
-            "breadcrumbs": {"0": "Home", "1": "Unita tettoniche", "2": "AutochthonousNorthAlpineForeland"},
+            "label": "Avampaese nordalpino autoctono",
+            "description": "The Autochthonous North Alpine Foreland consists of the European platform with its Cenozoic graben structures of eastern France, southwestern Germany and northern Switzerland. The boundary between the Autochthonous North Alpine Foreland and the Detached North Alpine Foreland marks the northernmost limit of significant Alpine compressional deformation.",
+            "breadcrumbs": {"0": "Avampaese nordalpino"},
         },
-        "italian_fallback": {
-            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben",
-            "label": "UpperRhineGraben",
-            "description": "Mock description for the UpperRhineGraben tectonic units term.",
-            "breadcrumbs": {"0": "Home", "1": "Tectonic Units", "2": "UpperRhineGraben"},
+        "german": {
+            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+            "label": "Autochthones Nordalpines Vorland",
+            "description": "The Autochthonous North Alpine Foreland consists of the European platform with its Cenozoic graben structures of eastern France, southwestern Germany and northern Switzerland. The boundary between the Autochthonous North Alpine Foreland and the Detached North Alpine Foreland marks the northernmost limit of significant Alpine compressional deformation.",
+            "breadcrumbs": {"0": "Nordalpines Vorland"},
+        },
+        "french": {
+            "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+            "label": "Avant-pays nord-alpin autochtone",
+            "description": "The Autochthonous North Alpine Foreland consists of the European platform with its Cenozoic graben structures of eastern France, southwestern Germany and northern Switzerland. The boundary between the Autochthonous North Alpine Foreland and the Detached North Alpine Foreland marks the northernmost limit of significant Alpine compressional deformation.",
+            "breadcrumbs": {"0": "Avant-pays nord-alpin"},
         },
     },
     "lithostratigraphy": {
-        "default_first": {
-            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
-            "label": "Servino",
-            "description": "Mock description for the Servino lithostratigraphy term.",
-            "breadcrumbs": {"0": "Home", "1": "Lithostratigraphy", "2": "Servino"},
+        "default": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/KaiseraugstFormation",
+            "label": "Kaiseraugst Formation",
+            "description": "",
+            "breadcrumbs": {"0": "European Plate"},
         },
-        "italian_first": {
-            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Servino",
-            "label": "Servino",
-            "description": "Descrizione mock per il termine litostratigrafico Servino.",
-            "breadcrumbs": {"0": "Home", "1": "Litostratigrafia", "2": "Servino"},
+        "italian": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/KaiseraugstFormation",
+            "label": "Formazione di Kaiseraugst",
+            "description": "",
+            "breadcrumbs": {"0": "Piatto europeano"},
         },
-        "italian_fallback": {
-            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/Flysch2",
-            "label": "Flysch2",
-            "description": "Mock description for the Flysch2 lithostratigraphy term.",
-            "breadcrumbs": {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2"},
+        "german": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/KaiseraugstFormation",
+            "label": "Kaiseraugst-Formation",
+            "description": "",
+            "breadcrumbs": {"0": "Europäische Platte"},
+        },
+        "french": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithostratigraphy/KaiseraugstFormation",
+            "label": "Formation de Kaiseraugst",
+            "description": "",
+            "breadcrumbs": {"0": "Plaque européenne"},
         },
     },
     "lithology": {
-        "default_first": {
+        "default": {
             "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
-            "label": "Amphibolite",
-            "description": "Mock description for the Amphibolite lithology term.",
-            "breadcrumbs": {"0": "Home", "1": "Lithology", "2": "Amphibolite"},
+            "label": "amphibolite",
+            "description": "mafic high-grade metamorphic rock essentially composed of minerals of the amphibole (>30%) and plagioclase groups",
+            "breadcrumbs": {"0": "rock", "1": "rock: crystalline", "2": "rock: mafic"},
         },
-        "italian_first": {
+        "italian": {
             "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
-            "label": "Anfibolite",
-            "description": "Descrizione mock per il termine litologico Amphibolite.",
-            "breadcrumbs": {"0": "Home", "1": "Litologia", "2": "Amphibolite"},
+            "label": "anfibolite",
+            "description": "mafic high-grade metamorphic rock essentially composed of minerals of the amphibole (>30%) and plagioclase groups",
+            "breadcrumbs": {"0": "roccia", "1": "roccia: cristallino", "2": "roccia: mafico"},
         },
-        "italian_fallback": {
-            "term": "https://dev-lexic.swissgeol.ch/Lithology/AmphiboliteBanded",
-            "label": "AmphiboliteBanded",
-            "description": "Mock description for the AmphiboliteBanded lithology term.",
-            "breadcrumbs": {"0": "Home", "1": "Lithology", "2": "AmphiboliteBanded"},
+        "german": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
+            "label": "Amphibolit",
+            "description": "mafic high-grade metamorphic rock essentially composed of minerals of the amphibole (>30%) and plagioclase groups",
+            "breadcrumbs": {"0": "Gestein", "1": "Gestein: kristallin", "2": "Gestein: mafisch"},
+        },
+        "french": {
+            "term": "https://dev-lexic.swissgeol.ch/Lithology/Amphibolite",
+            "label": "amphibolite",
+            "description": "mafic high-grade metamorphic rock essentially composed of minerals of the amphibole (>30%) and plagioclase groups",
+            "breadcrumbs": {"0": "roche", "1": "roche: cristallin", "2": "roche: mafique"},
         },
     },
 }
@@ -210,6 +241,7 @@ def build_expected_layers_response():
         )
     return {"webmapId": EXPECTED_WEBMAP_ID, "layers": layer_summaries}
 
+
 def build_expected_vocabulary_layers_response(vocabulary_id):
     filter_id = VOCAB_FILTER_MAP[vocabulary_id]
     layers = []
@@ -246,13 +278,57 @@ def build_expected_default_filters_response(layer_id, term):
     raise AssertionError(f"Unsupported term marker for test fixture: {term}")
 
 
-def assert_vocabulary_terms_response(vocabulary_id, response, sample_key, index, label):
-    assert_equal(len(response["terms"]), len(VOCAB_TERMS[vocabulary_id]), f"{label} count")
-    assert_equal(
-        response["terms"][index],
-        VOCAB_TERM_SAMPLES[vocabulary_id][sample_key],
-        label,
+def assert_sorted_terms(response, label):
+    term_uris = [term["term"] for term in response["terms"]]
+    assert_equal(term_uris, sorted(term_uris), label)
+
+
+def assert_terms_response_shape(response, label):
+    if not isinstance(response.get("terms"), list) or len(response["terms"]) == 0:
+        print(f"FAILED: {label}")
+        print("Response does not contain a non-empty terms list.")
+        sys.exit(1)
+
+    for term in response["terms"]:
+        if not isinstance(term.get("term"), str):
+            print(f"FAILED: {label}")
+            print("Term URI is not a string:", term)
+            sys.exit(1)
+        if not isinstance(term.get("label"), str):
+            print(f"FAILED: {label}")
+            print("Term label is not a string:", term)
+            sys.exit(1)
+        if not isinstance(term.get("description"), str):
+            print(f"FAILED: {label}")
+            print("Term description is not a string:", term)
+            sys.exit(1)
+        if not isinstance(term.get("breadcrumbs"), dict):
+            print(f"FAILED: {label}")
+            print("Term breadcrumbs is not an object:", term)
+            sys.exit(1)
+
+    assert_sorted_terms(response, f"{label} ordering")
+
+
+def assert_term_present(response, expected_term, label):
+    match = next(
+        (term for term in response["terms"] if term["term"] == expected_term["term"]),
+        None,
     )
+    if match is None:
+        print(f"FAILED: {label}")
+        print("Expected term not found:", json.dumps(expected_term, indent=2, sort_keys=True))
+        sys.exit(1)
+
+    assert_equal(match, expected_term, label)
+
+
+TERM_LANGUAGE_CASES = [
+    ("default", "", "default language"),
+    ("italian", "it", "italian language"),
+    ("german", "de", "german language"),
+    ("french", "fr", "french language"),
+]
 
 
 def run():
@@ -279,40 +355,26 @@ def run():
     vocab_response = http_get("/vocabularies")
     assert_equal(vocab_response, {"vocabularies": VOCABULARIES}, "GET /vocabularies")
 
+    italian_vocab_response = http_get("/vocabularies?lang=it")
+    assert_equal(
+        italian_vocab_response,
+        {"vocabularies": VOCABULARIES_ITALIAN},
+        "GET /vocabularies italian language",
+    )
+
     for vocab in VOCABULARIES:
-        default_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms")
-        assert_vocabulary_terms_response(
-            vocab["id"],
-            default_terms_resp,
-            "default_first",
-            0,
-            f"GET /vocabularies/{vocab['id']}/terms default language",
-        )
-
-        italian_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms?lang=it")
-        assert_vocabulary_terms_response(
-            vocab["id"],
-            italian_terms_resp,
-            "italian_first",
-            0,
-            f"GET /vocabularies/{vocab['id']}/terms italian translation",
-        )
-        assert_vocabulary_terms_response(
-            vocab["id"],
-            italian_terms_resp,
-            "italian_fallback",
-            2,
-            f"GET /vocabularies/{vocab['id']}/terms italian fallback",
-        )
-
-        german_terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms?lang=de")
-        assert_vocabulary_terms_response(
-            vocab["id"],
-            german_terms_resp,
-            "default_first",
-            0,
-            f"GET /vocabularies/{vocab['id']}/terms german fallback",
-        )
+        for sample_key, lang_code, label_suffix in TERM_LANGUAGE_CASES:
+            query_suffix = "" if not lang_code else f"?lang={lang_code}"
+            terms_resp = http_get(f"/vocabularies/{vocab['id']}/terms{query_suffix}")
+            assert_terms_response_shape(
+                terms_resp,
+                f"GET /vocabularies/{vocab['id']}/terms {label_suffix}",
+            )
+            assert_term_present(
+                terms_resp,
+                TERM_RESPONSE_SAMPLES[vocab["id"]][sample_key],
+                f"GET /vocabularies/{vocab['id']}/terms {sample_key} sample",
+            )
 
         vocab_layers_resp = http_get(f"/vocabularies/{vocab['id']}/layers")
         assert_equal(

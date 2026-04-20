@@ -2,6 +2,7 @@
  * @fileoverview Bootstraps and starts the WebMap API Fastify server.
  */
 
+import dotenv from "dotenv";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import fastify, { FastifyError } from "fastify";
@@ -16,6 +17,9 @@ import { registerLayerRoutes } from "./routes/layersRoutes";
 import { registerVocabRoutes } from "./routes/vocabRoutes";
 import { registerWmsRoutes } from "./routes/wmsRoutes";
 import { buildErrorBody } from "./utils/errors";
+
+dotenv.config({ path: ".env.local" });
+dotenv.config({ path: ".env" });
 
 const PORT = Number(process.env.PORT || 3000);
 const LOG_LEVEL = process.env.LOG_LEVEL || "info";
