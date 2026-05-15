@@ -6,6 +6,10 @@ import dotenv from "dotenv";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import fastify, { FastifyError } from "fastify";
+import {
+  readGeoServerEnvironmentConfig,
+  validateGeoServerEnvironmentConfig,
+} from "./geoserver/configuration";
 import { OpenApiRuntime } from "./openapi/runtime";
 import { buildServedOpenApiDocument } from "./openapi/servedDocument";
 import {
@@ -25,6 +29,7 @@ const PORT = Number(process.env.PORT || 3000);
 const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 
 const createApp = async () => {
+  validateGeoServerEnvironmentConfig(readGeoServerEnvironmentConfig());
   const openApiDocument = await loadOpenApiDocument();
   const servedOpenApiDocument = buildServedOpenApiDocument(
     readOpenApiSourceDocument()

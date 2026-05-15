@@ -3,15 +3,26 @@
  */
 
 import {
-  FILTER_CATALOG,
   LAYERS,
-  VOCABULARY_FILTER_MAP,
-  VOCABULARY_TERMS,
-  WEBMAP_ID,
-  FilterDefinition,
-  FilterId,
   LayerDefinition,
 } from "../data/mockData";
+import {
+  getVocabularyFilterId,
+  isTermFilterId,
+  type TermFilterId,
+} from "../filters/configuration";
+import { readGraphDbEnvironmentConfig } from "../graphdb/configuration";
+import { inferVocabularyIdFromTermUri } from "../graphdb/vocabularyDefinitions";
+import {
+  getFilterableLayerConfigurations,
+  getLayerConfigurationById,
+  type LayerConfiguration,
+} from "../layers/configuration";
+import {
+  LAYER_FILTER_CATALOG,
+  type LayerFilterDefinition,
+} from "../layers/filterCatalog";
+import { WEBMAP_ID } from "../webmap/constants";
 
 /**
  * Public layer representation exposed by layer listing endpoints.
@@ -43,7 +54,7 @@ export interface LayersResponse {
  */
 export interface LayerFiltersResponse {
   layerId: string;
-  filters: FilterDefinition[];
+  filters: LayerFilterDefinition[];
 }
 
 /**
@@ -54,10 +65,8 @@ export interface LayerAttributesResponse {
   attributes: string[];
 }
 
-type DefaultFilterId = Exclude<FilterId, "f-chronostrat-term" | "f-byAttribute">;
-
 export interface DefaultByTermsFilter {
-  filterId: DefaultFilterId;
+  filterId: TermFilterId;
   parameters: {
     term: string;
     includeNarrowers: true;
@@ -81,61 +90,46 @@ export type DefaultFiltersResult =
 const UNSUPPORTED_TERM_MESSAGE =
   "Layer does not support the vocabulary inferred from the provided term";
 
-const TERM_FILTER_IDS = new Set<DefaultFilterId>([
-  "f-tectonic-term",
-  "f-lithostrat-term",
-  "f-lithology-term",
-]);
-
-const isDefaultFilterId = (filterId: FilterId): filterId is DefaultFilterId =>
-  TERM_FILTER_IDS.has(filterId as DefaultFilterId);
-
-const getVocabularyIdForTerm = (term: string): string | null => {
-  for (const [vocabularyId, terms] of Object.entries(VOCABULARY_TERMS)) {
-    if (terms.includes(term)) {
-      return vocabularyId;
-    }
-  }
-
-  return null;
-};
-
-const toLayerSummary = (layer: LayerDefinition): LayerSummary => ({
+const toConfiguredLayerSummary = (layer: LayerConfiguration): LayerSummary => ({
   id: layer.id,
   name: layer.name,
   filterable: layer.filterable,
   availableFilters: layer.filterIds.map((filterId) => ({
     id: filterId,
-    name: FILTER_CATALOG[filterId].name,
-    title: FILTER_CATALOG[filterId].title,
-    description: FILTER_CATALOG[filterId].description,
+    name: LAYER_FILTER_CATALOG[filterId].name,
+    title: LAYER_FILTER_CATALOG[filterId].title,
+    description: LAYER_FILTER_CATALOG[filterId].description,
   })),
 });
 
 export const getLayersResponse = (): LayersResponse => ({
   webmapId: WEBMAP_ID,
-  layers: LAYERS.map(toLayerSummary),
+  layers: getFilterableLayerConfigurations().map(toConfiguredLayerSummary),
 });
 
-export const getLayerById = (layerId: string): LayerDefinition | undefined =>
+export const getMockLayerById = (layerId: string): LayerDefinition | undefined =>
   LAYERS.find((layer) => layer.id === layerId);
 
+/**
+ * Resolves the public filter metadata exposed by `/layers/{layerId}/filters`.
+ * Returns `null` when the layer is not part of the configured filterable layer registry.
+ */
 export const getLayerFiltersResponse = (
   layerId: string
 ): LayerFiltersResponse | null => {
-  const layer = getLayerById(layerId);
+  const layer = getLayerConfigurationById(layerId);
   if (!layer) return null;
 
   return {
     layerId: layer.id,
-    filters: layer.filterIds.map((filterId) => FILTER_CATALOG[filterId]),
+    filters: layer.filterIds.map((filterId) => LAYER_FILTER_CATALOG[filterId]),
   };
 };
 
-export const getLayerAttributesResponse = (
+export const getMockLayerAttributesResponse = (
   layerId: string
 ): LayerAttributesResponse | null => {
-  const layer = getLayerById(layerId);
+  const layer = getMockLayerById(layerId);
   if (!layer) return null;
 
   return {
@@ -148,7 +142,7 @@ export const getDefaultFiltersResponse = (
   layerId: string,
   term: string
 ): DefaultFiltersResult => {
-  const layer = getLayerById(layerId);
+  const layer = getLayerConfigurationById(layerId);
   if (!layer) {
     return {
       error: {
@@ -158,7 +152,10 @@ export const getDefaultFiltersResponse = (
     };
   }
 
-  const vocabularyId = getVocabularyIdForTerm(term);
+  const vocabularyId = inferVocabularyIdFromTermUri(
+    term,
+    readGraphDbEnvironmentConfig().vocabularyPrefixUrl
+  );
   if (!vocabularyId) {
     return {
       error: {
@@ -168,7 +165,7 @@ export const getDefaultFiltersResponse = (
     };
   }
 
-  const filterId = VOCABULARY_FILTER_MAP[vocabularyId];
+  const filterId = getVocabularyFilterId(vocabularyId);
   if (!filterId || !layer.filterIds.includes(filterId)) {
     return {
       error: {
@@ -187,7 +184,7 @@ export const getDefaultFiltersResponse = (
     };
   }
 
-  if (!isDefaultFilterId(filterId)) {
+  if (!isTermFilterId(filterId)) {
     return {
       error: {
         statusCode: 400,

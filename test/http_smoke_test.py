@@ -26,10 +26,10 @@ LAYERS = [
     {"id": "TK500", "name": "TK500", "filterable": False, "filters": [], "attributes": []},
     {"id": "Tecto_Lines", "name": "Tectonic Lines", "filterable": False, "filters": [], "attributes": []},
     {"id": "Quat_Surfaces", "name": "Quat Surfaces", "filterable": False, "filters": [], "attributes": []},
-    {"id": "tecto_units_augm", "name": "Tectonic Units", "filterable": True, "filters": ["f-chronostrat-term", "f-tectonic-term", "f-byAttribute"], "attributes": ["fid", "litho_en", "lith_en"]},
+    {"id": "tecto_units_augm", "name": "Tectonic Units", "filterable": True, "filters": ["f-chronostrat-term", "f-tectonic-term", "f-byAttribute"], "attributes": ["fid", "litho_en", "lith_en", "tecto_lexic", "chrono_from_lexic", "chrono_to_lexic"]},
     {"id": "geocover", "name": "GeoCover - Vektordaten", "filterable": False, "filters": [], "attributes": []},
-    {"id": "gc_bedrock", "name": "GC_BEDROCK", "filterable": True, "filters": ["f-chronostrat-term", "f-tectonic-term", "f-lithostrat-term", "f-lithology-term", "f-byAttribute"], "attributes": ["uuid", "fmat_litstrat", "objectid", "kind", "rbed_orig_descr", "form_att", "fmat_litstrat_code"]},
-    {"id": "gc_unco_deposits", "name": "GC_UNCO_DEPOSITS", "filterable": True, "filters": ["f-chronostrat-term", "f-byAttribute"], "attributes": ["objectid", "kind", "runc_litho", "runc_structur", "runc_orig_descr", "uuid", "runc_litho_code", "runc_chrono_b_code", "runc_chrono_t_code", "runc_glac_typ_code", "runc_morpholo_code"]},
+    {"id": "gc_bedrock", "name": "GC_BEDROCK", "filterable": True, "filters": ["f-chronostrat-term", "f-tectonic-term", "f-lithostrat-term", "f-lithology-term", "f-byAttribute"], "attributes": ["uuid", "litstrat_lexic", "objectid", "chrono_to_lexic", "chrono_from_lexic", "tecto_lexic", "litho_lexic_1", "litho_lexic_2", "litho_lexic_3", "geol_mapping_unit_code"]},
+    {"id": "gc_unco_deposits", "name": "GC_UNCO_DEPOSITS", "filterable": True, "filters": ["f-chronostrat-term", "f-byAttribute"], "attributes": ["objectid", "kind", "chrono_to_lexic", "chrono_from_lexic", "runc_litho", "runc_structur", "runc_orig_descr", "uuid", "runc_litho_code", "runc_chrono_b_code", "runc_chrono_t_code", "runc_glac_typ_code", "runc_morpholo_code"]},
     {"id": "fgdi", "name": "Federal Geo Data Infrastructure", "filterable": False, "filters": [], "attributes": []},
     {"id": "geologie-geocover", "name": "geologie-geocover", "filterable": False, "filters": [], "attributes": []},
     {"id": "osm", "name": "OpenStreetMap (OSM)", "filterable": False, "filters": [], "attributes": []},
@@ -171,9 +171,15 @@ TERM_RESPONSE_SAMPLES = {
 }
 
 EXPECTED_WMS_RESPONSE = {
-    "url": "https://wms.example.com/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers=gc_bedrock&crs=EPSG:3857&bbox=700000,100000,800000,200000&width=256&height=256&format=image/png&transparent=true&CQL_FILTER=1=1",
+    "url": "https://dev-webmap-api.swissgeol.ch/wms",
+    "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER="tecto_lexic" IN ( get_terms( "North Alpine Foreland" , True ) )&CRS=EPSG:2056',
     "mimeType": "image/png",
     "note": "The WMS URL includes encoded semantic query parameters.",
+}
+
+EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE = {
+    "code": 500,
+    "message": "Not implemented",
 }
 
 
@@ -210,6 +216,24 @@ def http_post(path, payload):
         return json.loads(body)
 
 
+def http_post_error(path, payload=None):
+    data = None if payload is None else json.dumps(payload).encode("utf-8")
+    headers = {} if payload is None else {"Content-Type": "application/json"}
+    req = urllib.request.Request(
+        BASE_URL + path,
+        data=data,
+        headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            body = response.read().decode("utf-8")
+            return response.status, json.loads(body)
+    except urllib.error.HTTPError as error:
+        body = error.read().decode("utf-8")
+        return error.code, json.loads(body)
+
+
 def assert_equal(actual, expected, label):
     if canonical_json(actual) != canonical_json(expected):
         print(f"FAILED: {label}")
@@ -222,6 +246,8 @@ def assert_equal(actual, expected, label):
 def build_expected_layers_response():
     layer_summaries = []
     for layer in LAYERS:
+        if not layer["filterable"]:
+            continue
         available_filters = [
             {
                 "id": fid,
@@ -246,6 +272,8 @@ def build_expected_vocabulary_layers_response(vocabulary_id):
     filter_id = VOCAB_FILTER_MAP[vocabulary_id]
     layers = []
     for layer in LAYERS:
+        if not layer["filterable"]:
+            continue
         if filter_id in layer["filters"]:
             layers.append({"id": layer["id"], "name": layer["name"]})
     return {"layers": layers}
@@ -337,19 +365,41 @@ def run():
     assert_equal(layers_response, expected_layers, "GET /layers")
 
     for layer in LAYERS:
-        filters_resp = http_get(f"/layers/{layer['id']}/filters?lang=it")
-        expected_filters = [FILTER_CATALOG[fid] for fid in layer["filters"]]
+        if layer["filterable"]:
+            filters_resp = http_get(f"/layers/{layer['id']}/filters?lang=it")
+            expected_filters = [FILTER_CATALOG[fid] for fid in layer["filters"]]
+            assert_equal(
+                filters_resp,
+                {"layerId": layer["id"], "filters": expected_filters},
+                f"GET /layers/{layer['id']}/filters",
+            )
+
+            attributes_resp = http_get(f"/layers/{layer['id']}/attributeList")
+            assert_equal(
+                attributes_resp,
+                {"layerId": layer["id"], "attributes": layer["attributes"]},
+                f"GET /layers/{layer['id']}/attributeList",
+            )
+            continue
+
+        status_code, error_body = http_get_error(f"/layers/{layer['id']}/filters?lang=it")
         assert_equal(
-            filters_resp,
-            {"layerId": layer["id"], "filters": expected_filters},
-            f"GET /layers/{layer['id']}/filters",
+            {"statusCode": status_code, "body": error_body},
+            {
+                "statusCode": 404,
+                "body": {"code": 404, "message": "Layer not found"},
+            },
+            f"GET /layers/{layer['id']}/filters not configured",
         )
 
-        attributes_resp = http_get(f"/layers/{layer['id']}/attributeList")
+        status_code, error_body = http_get_error(f"/layers/{layer['id']}/attributeList")
         assert_equal(
-            attributes_resp,
-            {"layerId": layer["id"], "attributes": layer["attributes"]},
-            f"GET /layers/{layer['id']}/attributeList",
+            {"statusCode": status_code, "body": error_body},
+            {
+                "statusCode": 404,
+                "body": {"code": 404, "message": "Layer not found"},
+            },
+            f"GET /layers/{layer['id']}/attributeList not configured",
         )
 
     vocab_response = http_get("/vocabularies")
@@ -408,6 +458,15 @@ def run():
             ),
             "GET /layers/tecto_units_augm/defaultFilters tectonic-units",
         ),
+        (
+            "gc_bedrock",
+            "https://dev-lexic.swissgeol.ch/Lithology/CustomLithology",
+            build_expected_default_filters_response(
+                "gc_bedrock",
+                "https://dev-lexic.swissgeol.ch/Lithology/CustomLithology",
+            ),
+            "GET /layers/gc_bedrock/defaultFilters custom lithology term",
+        ),
     ]
 
     for layer_id, term, expected_response, label in default_filters_cases:
@@ -417,6 +476,16 @@ def run():
         assert_equal(response, expected_response, label)
 
     error_cases = [
+        (
+            "TK500",
+            VOCAB_TERMS["chronostratigraphy"][0],
+            404,
+            {
+                "code": 404,
+                "message": "Layer not found",
+            },
+            "GET /layers/TK500/defaultFilters layer not configured",
+        ),
         (
             "gc_unco_deposits",
             VOCAB_TERMS["lithology"][0],
@@ -437,6 +506,16 @@ def run():
             },
             "GET /layers/gc_bedrock/defaultFilters unknown term",
         ),
+        (
+            "gc_bedrock",
+            "https://evil.example/Lithology/CustomLithology",
+            400,
+            {
+                "code": 400,
+                "message": "Layer does not support the vocabulary inferred from the provided term",
+            },
+            "GET /layers/gc_bedrock/defaultFilters external vocabulary URI",
+        ),
     ]
 
     for layer_id, term, expected_status, expected_body, label in error_cases:
@@ -446,13 +525,123 @@ def run():
         assert_equal(status, expected_status, f"{label} status")
         assert_equal(body, expected_body, label)
 
+    status, body = http_get_error("/layers/gc_bedrock/defaultFilters")
+    assert_equal(status, 400, "GET /layers/gc_bedrock/defaultFilters missing term status")
+    assert_equal(
+        body,
+        {
+            "code": 400,
+            "message": "Missing required query parameter 'term'",
+        },
+        "GET /layers/gc_bedrock/defaultFilters missing term",
+    )
+
     wms_body = {
         "webmapId": EXPECTED_WEBMAP_ID,
-        "layerId": "gc_bedrock",
-        "filters": [],
+        "layerId": "tecto_units_augm",
+        "filters": [
+            {
+                "filterId": "f-tectonic-term",
+                "parameters": {
+                    "term": "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland",
+                    "includeNarrowers": True,
+                },
+            }
+        ],
     }
-    wms_resp = http_post("/wms", wms_body)
-    assert_equal(wms_resp, EXPECTED_WMS_RESPONSE, "POST /wms")
+    wms_resp = http_post("/generateWmsRequest", wms_body)
+    assert_equal(wms_resp, EXPECTED_WMS_RESPONSE, "POST /generateWmsRequest")
+
+    status, body = http_post_error(
+        "/generateWmsRequest",
+        {
+            **wms_body,
+            "webmapId": "UnknownMap",
+        },
+    )
+    assert_equal(status, 404, "POST /generateWmsRequest unknown webmap status")
+    assert_equal(
+        body,
+        {
+            "code": 404,
+            "message": "Webmap not found",
+        },
+        "POST /generateWmsRequest unknown webmap",
+    )
+
+    status, body = http_post_error(
+        "/generateWmsRequest",
+        {
+            **wms_body,
+            "layerId": "unknown-layer",
+        },
+    )
+    assert_equal(status, 404, "POST /generateWmsRequest unknown layer status")
+    assert_equal(
+        body,
+        {
+            "code": 404,
+            "message": "Layer not found",
+        },
+        "POST /generateWmsRequest unknown layer",
+    )
+
+    status, body = http_post_error(
+        "/generateWmsRequest",
+        {
+            "layerId": "tecto_units_augm",
+        },
+    )
+    assert_equal(status, 400, "POST /generateWmsRequest missing webmapId status")
+    assert_equal(
+        body,
+        {
+            "code": 400,
+            "message": "Missing required field 'webmapId'",
+        },
+        "POST /generateWmsRequest missing webmapId",
+    )
+
+    status, body = http_post_error(
+        "/generateWmsRequest",
+        {
+            "webmapId": EXPECTED_WEBMAP_ID,
+        },
+    )
+    assert_equal(status, 400, "POST /generateWmsRequest missing layerId status")
+    assert_equal(
+        body,
+        {
+            "code": 400,
+            "message": "Missing required field 'layerId'",
+        },
+        "POST /generateWmsRequest missing layerId",
+    )
+
+    status, body = http_get_error("/wms")
+    assert_equal(status, 500, "GET /wms without declared query schema status")
+    assert_equal(
+        body,
+        EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE,
+        "GET /wms without declared query schema",
+    )
+
+    status, body = http_post_error("/wms", {})
+    assert_equal(status, 500, "POST /wms without declared body schema status")
+    assert_equal(
+        body,
+        EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE,
+        "POST /wms without declared body schema",
+    )
+
+    wms_query = urllib.parse.urlencode(EXPECTED_WMS_RESPONSE)
+    status, body = http_get_error(f"/wms?{wms_query}")
+    assert_equal(status, 500, "GET /wms status")
+    assert_equal(body, EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE, "GET /wms")
+
+    status, body = http_post_error("/wms", EXPECTED_WMS_RESPONSE)
+    assert_equal(status, 500, "POST /wms status")
+    assert_equal(body, EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE, "POST /wms")
 
 
 if __name__ == "__main__":

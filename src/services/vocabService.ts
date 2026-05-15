@@ -4,19 +4,23 @@
 
 import type { FastifyBaseLogger } from "fastify";
 import {
-  LAYERS,
-  VOCABULARY_FILTER_MAP,
   VOCABULARY_TERM_DETAILS,
 } from "../data/mockData";
+import { getVocabularyFilterId } from "../filters/configuration";
 import {
   buildGraphDbVocabulariesConfig,
   readGraphDbEnvironmentConfig,
 } from "../graphdb/configuration";
 import {
-  GRAPHDB_VOCABULARY_DEFINITIONS,
   getGraphDbVocabularyDefinition,
+  isPublicVocabularyId,
+  GRAPHDB_VOCABULARY_DEFINITIONS,
 } from "../graphdb/vocabularyDefinitions";
 import type { GraphDbVocabularyLabel, PublicVocabularyId } from "../graphdb/types";
+import {
+  getLayerConfigurationById,
+  getLayerIdsSupportingFilterId,
+} from "../layers/configuration";
 import { fetchVocabularyListingLabelsData } from "../libs/graphDbWrapper";
 import {
   DEFAULT_VOCABULARY_LANGUAGE,
@@ -158,15 +162,29 @@ export const getVocabularyTerms = (
   };
 };
 
+/**
+ * Resolves the configured layers that support the public vocabulary requested
+ * by `/vocabularies/{vocabulary}/layers`. Returns `null` for unknown vocabulary ids.
+ */
 export const getVocabularyLayers = (
   vocabularyId: string
 ): VocabularyLayersResponse | null => {
-  const filterId = VOCABULARY_FILTER_MAP[vocabularyId];
-  if (!filterId) return null;
+  if (!isPublicVocabularyId(vocabularyId)) {
+    return null;
+  }
 
-  const layers = LAYERS.filter((layer) => layer.filterIds.includes(filterId)).map(
-    (layer) => ({ id: layer.id, name: layer.name })
-  );
+  const filterId = getVocabularyFilterId(vocabularyId);
+  const layers = getLayerIdsSupportingFilterId(filterId).map((layerId) => {
+    const layer = getLayerConfigurationById(layerId);
+
+    if (!layer) {
+      throw new Error(
+        `Missing layer configuration for vocabulary-layer mapping '${layerId}'.`
+      );
+    }
+
+    return { id: layer.id, name: layer.name };
+  });
 
   return { layers };
 };

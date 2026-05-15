@@ -10,7 +10,7 @@ import path from "path";
  * Update this constant when changing the specification version.
  * This is the ONLY place that needs modification on spec version update.
  */
-export const OPENAPI_SPEC_FILENAME = "SwissTopoWebmapAPI-1.5.0.yaml";
+export const OPENAPI_SPEC_FILENAME = "SwissTopoWebmapAPI-1.6.0.yaml";
 
 const APP_ROOT = path.resolve(__dirname, "..", "..");
 

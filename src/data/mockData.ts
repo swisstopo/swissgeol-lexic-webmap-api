@@ -52,6 +52,7 @@ export interface VocabularyTermDefinition {
 
 export interface WmsResponse {
   url: string;
+  body: string;
   mimeType: string;
   note: string;
 }
@@ -217,12 +218,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Phanerozoic",
           description: "Mock description for the Phanerozoic chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Phanerozoic"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Phanerozoic"},
         },
         it: {
           label: "Fanerozoico",
           description: "Descrizione mock per il termine cronostratigrafico Phanerozoic.",
-          breadcrumbs: {"0": "Home", "1": "Cronostratigrafia", "2": "Phanerozoic"},
+          breadcrumbs: {"0": "Cronostratigrafia", "1": "Phanerozoic"},
         },
       },
     },
@@ -232,12 +233,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Paleozoic",
           description: "Mock description for the Paleozoic chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Paleozoic"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Paleozoic"},
         },
         it: {
           label: "Paleozoico",
           description: "Descrizione mock per il termine cronostratigrafico Paleozoic.",
-          breadcrumbs: {"0": "Home", "1": "Cronostratigrafia", "2": "Paleozoic"},
+          breadcrumbs: {"0": "Cronostratigrafia", "1": "Paleozoic"},
         },
       },
     },
@@ -247,7 +248,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Cenozoic",
           description: "Mock description for the Cenozoic chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Cenozoic"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Cenozoic"},
         },
       },
     },
@@ -257,7 +258,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Mesozoic",
           description: "Mock description for the Mesozoic chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Mesozoic"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Mesozoic"},
         },
       },
     },
@@ -267,7 +268,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Proterozoic",
           description: "Mock description for the Proterozoic chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Proterozoic"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Proterozoic"},
         },
       },
     },
@@ -277,7 +278,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Paleogene",
           description: "Mock description for the Paleogene chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Paleogene"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Paleogene"},
         },
       },
     },
@@ -287,7 +288,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Quaternary",
           description: "Mock description for the Quaternary chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Quaternary"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Quaternary"},
         },
       },
     },
@@ -297,7 +298,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Neogene",
           description: "Mock description for the Neogene chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Neogene"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Neogene"},
         },
       },
     },
@@ -307,7 +308,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Tertiary",
           description: "Mock description for the Tertiary chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Tertiary"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Tertiary"},
         },
       },
     },
@@ -317,7 +318,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Cretaceous",
           description: "Mock description for the Cretaceous chronostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Chronostratigraphy", "2": "Cretaceous"},
+          breadcrumbs: {"0": "Chronostratigraphy", "1": "Cretaceous"},
         },
       },
     },
@@ -330,13 +331,13 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
           label: "AutochthonousNorthAlpineForeland",
           description:
             "Mock description for the AutochthonousNorthAlpineForeland tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "AutochthonousNorthAlpineForeland"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "AutochthonousNorthAlpineForeland"},
         },
         it: {
           label: "AutochthonousNorthAlpineForeland",
           description:
             "Descrizione mock per il termine di unita tettoniche AutochthonousNorthAlpineForeland.",
-          breadcrumbs: {"0": "Home", "1": "Unita tettoniche", "2": "AutochthonousNorthAlpineForeland"},
+          breadcrumbs: {"0": "Unita tettoniche", "1": "AutochthonousNorthAlpineForeland"},
         },
       },
     },
@@ -346,12 +347,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "BresseGraben",
           description: "Mock description for the BresseGraben tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "BresseGraben"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "BresseGraben"},
         },
         it: {
           label: "BresseGraben",
           description: "Descrizione mock per il termine di unita tettoniche BresseGraben.",
-          breadcrumbs: {"0": "Home", "1": "Unita tettoniche", "2": "BresseGraben"},
+          breadcrumbs: {"0": "Unita tettoniche", "1": "BresseGraben"},
         },
       },
     },
@@ -361,7 +362,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "UpperRhineGraben",
           description: "Mock description for the UpperRhineGraben tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "UpperRhineGraben"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "UpperRhineGraben"},
         },
       },
     },
@@ -371,7 +372,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "SouthGermanPlatform",
           description: "Mock description for the SouthGermanPlatform tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "SouthGermanPlatform"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "SouthGermanPlatform"},
         },
       },
     },
@@ -384,9 +385,8 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
           description:
             "Mock description for the TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland tectonic units term.",
           breadcrumbs: {
-            "0": "Home",
-            "1": "Tectonic Units",
-            "2": "TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
+            "0": "Tectonic Units",
+            "1": "TransitionZoneBetweenDetachedAndAutochthonousNorthAlpineForeland",
           },
         },
       },
@@ -398,7 +398,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
           label: "DetachedNorthAlpineForeland",
           description:
             "Mock description for the DetachedNorthAlpineForeland tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "DetachedNorthAlpineForeland"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "DetachedNorthAlpineForeland"},
         },
       },
     },
@@ -408,7 +408,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "ExternalFoldedJura",
           description: "Mock description for the ExternalFoldedJura tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "ExternalFoldedJura"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "ExternalFoldedJura"},
         },
       },
     },
@@ -418,7 +418,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "SubalpineMolasse",
           description: "Mock description for the SubalpineMolasse tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "SubalpineMolasse"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "SubalpineMolasse"},
         },
       },
     },
@@ -431,9 +431,8 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
           description:
             "Mock description for the InternalFoldedJuraAndForelandPlateau tectonic units term.",
           breadcrumbs: {
-            "0": "Home",
-            "1": "Tectonic Units",
-            "2": "InternalFoldedJuraAndForelandPlateau",
+            "0": "Tectonic Units",
+            "1": "InternalFoldedJuraAndForelandPlateau",
           },
         },
       },
@@ -444,7 +443,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "HegauVolcanicSuite",
           description: "Mock description for the HegauVolcanicSuite tectonic units term.",
-          breadcrumbs: {"0": "Home", "1": "Tectonic Units", "2": "HegauVolcanicSuite"},
+          breadcrumbs: {"0": "Tectonic Units", "1": "HegauVolcanicSuite"},
         },
       },
     },
@@ -456,12 +455,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Servino",
           description: "Mock description for the Servino lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Servino"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Servino"},
         },
         it: {
           label: "Servino",
           description: "Descrizione mock per il termine litostratigrafico Servino.",
-          breadcrumbs: {"0": "Home", "1": "Litostratigrafia", "2": "Servino"},
+          breadcrumbs: {"0": "Litostratigrafia", "1": "Servino"},
         },
       },
     },
@@ -472,13 +471,13 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
           label: "Grenzposidonienschichten",
           description:
             "Mock description for the Grenzposidonienschichten lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Grenzposidonienschichten"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Grenzposidonienschichten"},
         },
         it: {
           label: "Grenzposidonienschichten",
           description:
             "Descrizione mock per il termine litostratigrafico Grenzposidonienschichten.",
-          breadcrumbs: {"0": "Home", "1": "Litostratigrafia", "2": "Grenzposidonienschichten"},
+          breadcrumbs: {"0": "Litostratigrafia", "1": "Grenzposidonienschichten"},
         },
       },
     },
@@ -488,7 +487,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch2",
           description: "Mock description for the Flysch2 lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch2"},
         },
       },
     },
@@ -498,7 +497,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch3",
           description: "Mock description for the Flysch3 lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch3"},
         },
       },
     },
@@ -508,7 +507,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch4",
           description: "Mock description for the Flysch4 lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch4"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch4"},
         },
       },
     },
@@ -518,7 +517,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch5",
           description: "Mock description for the Flysch5 lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch5"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch5"},
         },
       },
     },
@@ -528,7 +527,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch2a",
           description: "Mock description for the Flysch2a lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2a"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch2a"},
         },
       },
     },
@@ -538,7 +537,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch2b",
           description: "Mock description for the Flysch2b lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch2b"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch2b"},
         },
       },
     },
@@ -548,7 +547,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch3a",
           description: "Mock description for the Flysch3a lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3a"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch3a"},
         },
       },
     },
@@ -558,7 +557,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Flysch3b",
           description: "Mock description for the Flysch3b lithostratigraphy term.",
-          breadcrumbs: {"0": "Home", "1": "Lithostratigraphy", "2": "Flysch3b"},
+          breadcrumbs: {"0": "Lithostratigraphy", "1": "Flysch3b"},
         },
       },
     },
@@ -570,12 +569,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Amphibolite",
           description: "Mock description for the Amphibolite lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Amphibolite"},
+          breadcrumbs: {"0": "Lithology", "1": "Amphibolite"},
         },
         it: {
           label: "Anfibolite",
           description: "Descrizione mock per il termine litologico Amphibolite.",
-          breadcrumbs: {"0": "Home", "1": "Litologia", "2": "Amphibolite"},
+          breadcrumbs: {"0": "Litologia", "1": "Amphibolite"},
         },
       },
     },
@@ -585,12 +584,12 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "RockMafic",
           description: "Mock description for the RockMafic lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "RockMafic"},
+          breadcrumbs: {"0": "Lithology", "1": "RockMafic"},
         },
         it: {
           label: "Roccia mafica",
           description: "Descrizione mock per il termine litologico RockMafic.",
-          breadcrumbs: {"0": "Home", "1": "Litologia", "2": "RockMafic"},
+          breadcrumbs: {"0": "Litologia", "1": "RockMafic"},
         },
       },
     },
@@ -600,7 +599,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "AmphiboliteBanded",
           description: "Mock description for the AmphiboliteBanded lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteBanded"},
+          breadcrumbs: {"0": "Lithology", "1": "AmphiboliteBanded"},
         },
       },
     },
@@ -610,7 +609,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "AmphiboliteGarnet",
           description: "Mock description for the AmphiboliteGarnet lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteGarnet"},
+          breadcrumbs: {"0": "Lithology", "1": "AmphiboliteGarnet"},
         },
       },
     },
@@ -620,7 +619,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "AmphiboliteHornblende",
           description: "Mock description for the AmphiboliteHornblende lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteHornblende"},
+          breadcrumbs: {"0": "Lithology", "1": "AmphiboliteHornblende"},
         },
       },
     },
@@ -630,7 +629,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "AmphiboliteMigmatitic",
           description: "Mock description for the AmphiboliteMigmatitic lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "AmphiboliteMigmatitic"},
+          breadcrumbs: {"0": "Lithology", "1": "AmphiboliteMigmatitic"},
         },
       },
     },
@@ -640,7 +639,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "RockCrystalline",
           description: "Mock description for the RockCrystalline lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "RockCrystalline"},
+          breadcrumbs: {"0": "Lithology", "1": "RockCrystalline"},
         },
       },
     },
@@ -650,7 +649,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Eclogite",
           description: "Mock description for the Eclogite lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Eclogite"},
+          breadcrumbs: {"0": "Lithology", "1": "Eclogite"},
         },
       },
     },
@@ -660,7 +659,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Serpentinite",
           description: "Mock description for the Serpentinite lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Serpentinite"},
+          breadcrumbs: {"0": "Lithology", "1": "Serpentinite"},
         },
       },
     },
@@ -670,7 +669,7 @@ export const VOCABULARY_TERM_DETAILS: Record<string, VocabularyTermDefinition[]>
         en: {
           label: "Prasinite",
           description: "Mock description for the Prasinite lithology term.",
-          breadcrumbs: {"0": "Home", "1": "Lithology", "2": "Prasinite"},
+          breadcrumbs: {"0": "Lithology", "1": "Prasinite"},
         },
       },
     },
@@ -692,7 +691,8 @@ export const VOCABULARY_FILTER_MAP: Record<string, FilterId> = {
 };
 
 export const WMS_RESPONSE_TEMPLATE: WmsResponse = {
-  url: "https://wms.example.com/geoserver/wms?service=WMS&version=1.3.0&request=GetMap&layers={{LAYER_ID}}&crs=EPSG:3857&bbox=700000,100000,800000,200000&width=256&height=256&format=image/png&transparent=true&CQL_FILTER=1=1",
+  url: "https://dev-webmap-api.swissgeol.ch/wms",
+  body: 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS={{LAYER_ID}}&TILED=true&SEMANTIC_FILTER="tecto_lexic" IN ( get_terms( "North Alpine Foreland" , True ) )&CRS=EPSG:2056',
   mimeType: "image/png",
   note: "The WMS URL includes encoded semantic query parameters.",
 };

@@ -37,6 +37,10 @@ interface VocabularyTermStatementQueryResult {
   object: unknown;
 }
 
+interface VocabularyConceptQueryResult {
+  concept: NamedNodeBinding;
+}
+
 type GraphDbVocabulariesResult = Record<
   PublicVocabularyId,
   GraphDbVocabularyTerm[]
@@ -67,6 +71,11 @@ const isVocabularyTermStatementQueryResult = (
   isNamedNodeBinding(value.term) &&
   isNamedNodeBinding(value.predicate) &&
   value.object !== undefined;
+
+const isVocabularyConceptQueryResult = (
+  value: unknown
+): value is VocabularyConceptQueryResult =>
+  isRecord(value) && isNamedNodeBinding(value.concept);
 
 const getNamedNodeValue = (value: NamedNodeBinding): string =>
   value.id ?? value.value ?? "";
@@ -254,3 +263,25 @@ export const fetchVocabularyTermsData = async (
   vocabularyPrefixUrl: string
 ): Promise<GraphDbVocabularyTermStatement[]> =>
   fetchVocabularyTermStatements(vocabulary, vocabularyPrefixUrl);
+
+/**
+ * Executes a semantic concept query for one vocabulary and returns the
+ * resulting concept URIs extracted from the `?concept` binding. The caller is
+ * responsible for providing a SELECT query that projects a `concept` variable.
+ */
+export const fetchVocabularyConceptsData = async (
+  vocabulary: GraphDbVocabularyConfig,
+  sparqlQuery: string
+): Promise<string[]> => {
+  const queryResults = await executeVocabularyQuery(vocabulary, sparqlQuery, null);
+
+  return queryResults.map((queryResult) => {
+    if (!isVocabularyConceptQueryResult(queryResult)) {
+      throw new Error(
+        `Unexpected GraphDB concept result shape for vocabulary '${vocabulary.id}'.`
+      );
+    }
+
+    return getNamedNodeValue(queryResult.concept);
+  });
+};

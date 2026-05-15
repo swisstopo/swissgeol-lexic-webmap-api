@@ -53,8 +53,9 @@ const main = async () => {
     "Swagger JSON must expose the local mock server under /v1."
   );
   assert(
-    actualDocument.paths?.["/wms"]?.post?.requestBody?.content?.["application/json"]?.example
-      ?.layerId === "gc_bedrock",
+    actualDocument.paths?.["/generateWmsRequest"]?.post?.requestBody?.content?.[
+      "application/json"
+    ]?.example?.layerId === "tecto_units_augm",
     "Swagger JSON must expose a WMS request example aligned with the mock dataset."
   );
   assert(

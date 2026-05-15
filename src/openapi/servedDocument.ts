@@ -4,21 +4,19 @@
 
 import type { OpenAPIV3 } from "openapi-types";
 import {
-  WEBMAP_ID,
   VOCABULARY_TERMS,
 } from "../data/mockData";
 import {
   getDefaultFiltersResponse,
-  getLayerAttributesResponse,
   getLayerFiltersResponse,
   getLayersResponse,
+  getMockLayerAttributesResponse,
 } from "../services/layersService";
 import {
   getVocabulariesResponse,
   getVocabularyLayers,
   getVocabularyTerms,
 } from "../services/vocabService";
-import { getWmsResponse } from "../services/wmsService";
 import { API_ROUTE_PREFIX } from "./specification";
 
 type ExampleMap = Record<string, OpenAPIV3.ExampleObject | OpenAPIV3.ReferenceObject>;
@@ -95,28 +93,6 @@ const setResponseExamples = (
   delete mediaType.example;
 };
 
-const setRequestExample = (
-  document: OpenAPIV3.Document,
-  path: string,
-  method: string,
-  example: unknown
-): void => {
-  const operation = document.paths?.[path]?.[
-    method as keyof OpenAPIV3.PathItemObject
-  ] as OpenAPIV3.OperationObject | undefined;
-
-  if (!operation?.requestBody || "$ref" in operation.requestBody) {
-    return;
-  }
-
-  const mediaType = operation.requestBody.content?.["application/json"];
-  if (!mediaType) {
-    return;
-  }
-
-  mediaType.example = example;
-};
-
 const createDefaultFilterExamples = (): ExampleMap => {
   const chronostratigraphy = getDefaultFiltersResponse(
     "gc_bedrock",
@@ -183,7 +159,7 @@ export const buildServedOpenApiDocument = (
   setResponseExamples(document, "/layers/{layerId}/attributeList", "get", "200", {
     gc_bedrock: {
       summary: "Attributes for gc_bedrock layer",
-      value: getLayerAttributesResponse("gc_bedrock"),
+      value: getMockLayerAttributesResponse("gc_bedrock"),
     },
   });
 
@@ -245,21 +221,6 @@ export const buildServedOpenApiDocument = (
     "200",
     getVocabularyLayers("lithology")
   );
-
-  setRequestExample(document, "/wms", "post", {
-    webmapId: WEBMAP_ID,
-    layerId: "gc_bedrock",
-    filters: [
-      {
-        filterId: "f-lithology-term",
-        parameters: {
-          term: VOCABULARY_TERMS["lithology"][0],
-          includeNarrowers: true,
-        },
-      },
-    ],
-  });
-  setResponseExample(document, "/wms", "post", "200", getWmsResponse("gc_bedrock"));
 
   return document;
 };

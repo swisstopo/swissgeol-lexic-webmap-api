@@ -3,7 +3,11 @@
  */
 
 import { FastifyInstance } from "fastify";
-import { postWmsHandler } from "../controllers/wmsController";
+import {
+  postGenerateWmsRequestHandler,
+  getWmsHandler,
+  postWmsHandler,
+} from "../controllers/wmsController";
 import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
@@ -12,6 +16,18 @@ import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
  * @returns Promise resolved when route registration is complete.
  */
 export const registerWmsRoutes = async (fastify: FastifyInstance) => {
+  registerOpenApiRoute(fastify, {
+    method: "post",
+    specPath: "/generateWmsRequest",
+    fastifyPath: "/generateWmsRequest",
+    handler: postGenerateWmsRequestHandler,
+  });
+  registerOpenApiRoute(fastify, {
+    method: "get",
+    specPath: "/wms",
+    fastifyPath: "/wms",
+    handler: getWmsHandler,
+  });
   registerOpenApiRoute(fastify, {
     method: "post",
     specPath: "/wms",

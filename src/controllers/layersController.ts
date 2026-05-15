@@ -4,10 +4,10 @@
 
 import {
   getDefaultFiltersResponse,
-  getLayerAttributesResponse,
   getLayerFiltersResponse,
   getLayersResponse,
 } from "../services/layersService";
+import { getLiveLayerAttributesResponse } from "../services/layerAttributeListService";
 import type { OpenApiHandler, OpenApiRequest } from "../openapi/types";
 import { jsonResponse } from "../openapi/types";
 import { buildErrorBody } from "../utils/errors";
@@ -61,7 +61,7 @@ export const getLayerAttributeListHandler: OpenApiHandler<
   "get"
 > = async (request: OpenApiRequest<"/layers/{layerId}/attributeList", "get">) => {
   const { layerId } = request.params;
-  const response = getLayerAttributesResponse(layerId);
+  const response = await getLiveLayerAttributesResponse(layerId, request.log);
   if (!response) {
     return jsonResponse<"/layers/{layerId}/attributeList", "get">(
       404,
