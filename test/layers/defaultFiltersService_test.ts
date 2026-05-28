@@ -5,7 +5,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDefaultFiltersResponse } from "../../src/services/layersService";
+import { getDefaultFiltersResponse } from "../../src/services/layers/layersService";
 
 test("returns 404 when the layer is not configured even if the term uses a supported vocabulary", () => {
   assert.deepEqual(

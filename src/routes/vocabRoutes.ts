@@ -17,9 +17,11 @@ import {
 import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
- * Registers vocabulary listing, terms, and layer reference endpoints.
- * @param fastify Fastify server instance used to declare routes.
- * @returns Promise resolved when route registration is complete.
+ * Registers vocabulary listing, term, and layer-reference endpoints.
+ *
+ * Vocabulary routes are intentionally fixed per public vocabulary id so the
+ * OpenAPI runtime can validate each operation against an exact specification
+ * path instead of a loose dynamic route.
  */
 export const registerVocabRoutes = async (fastify: FastifyInstance) => {
   registerOpenApiRoute(fastify, {

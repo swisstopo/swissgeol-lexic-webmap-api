@@ -1,5 +1,6 @@
 /**
- * Compares the served Swagger JSON with the OpenAPI document exposed by the mock server.
+ * Compares the served Swagger JSON with the OpenAPI document exposed by the
+ * local server.
  */
 
 import { readOpenApiSourceDocument } from "../src/openapi/specification";
@@ -50,18 +51,24 @@ const main = async () => {
     Array.isArray(actualDocument.servers) &&
       actualDocument.servers.length === 1 &&
       actualDocument.servers[0]?.url === "/v1",
-    "Swagger JSON must expose the local mock server under /v1."
+    "Swagger JSON must expose the local server under /v1."
   );
   assert(
     actualDocument.paths?.["/generateWmsRequest"]?.post?.requestBody?.content?.[
       "application/json"
     ]?.example?.layerId === "tecto_units_augm",
-    "Swagger JSON must expose a WMS request example aligned with the mock dataset."
+    "Swagger JSON must expose a WMS request example aligned with the local examples."
   );
   assert(
     actualDocument.paths?.["/layers/{layerId}/defaultFilters"]?.get?.responses?.["200"]?.content
       ?.["application/json"]?.examples?.LithologyTerm?.value?.layerId === "gc_bedrock",
-    "Swagger JSON must expose defaultFilters examples aligned with the mock dataset."
+    "Swagger JSON must expose defaultFilters examples aligned with the local examples."
+  );
+  assert(
+    actualDocument.paths?.["/wmts"]?.get?.responses?.["200"]?.content?.[
+      "application/json"
+    ]?.example?.source?.paramsWMTS?.layer === "gc_bedrock",
+    "Swagger JSON must expose a WMTS example aligned with the local examples."
   );
 
   console.log("Swagger JSON matches the served OpenAPI document.");

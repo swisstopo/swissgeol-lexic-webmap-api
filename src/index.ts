@@ -9,7 +9,7 @@ import fastify, { FastifyError } from "fastify";
 import {
   readGeoServerEnvironmentConfig,
   validateGeoServerEnvironmentConfig,
-} from "./geoserver/configuration";
+} from "./configuration/geoserver/configuration";
 import { OpenApiRuntime } from "./openapi/runtime";
 import { buildServedOpenApiDocument } from "./openapi/servedDocument";
 import {
@@ -20,6 +20,7 @@ import {
 import { registerLayerRoutes } from "./routes/layersRoutes";
 import { registerVocabRoutes } from "./routes/vocabRoutes";
 import { registerWmsRoutes } from "./routes/wmsRoutes";
+import { registerWmtsRoutes } from "./routes/wmtsRoutes";
 import { buildErrorBody } from "./utils/errors";
 
 dotenv.config({ path: ".env.local" });
@@ -28,6 +29,12 @@ dotenv.config({ path: ".env" });
 const PORT = Number(process.env.PORT || 3000);
 const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 
+/**
+ * Builds the Fastify application in the same order the HTTP boundary depends on:
+ * validate required upstream configuration, load the OpenAPI contract, attach the
+ * runtime validator, expose documentation, register routes, then verify that the
+ * registered Fastify paths still cover the OpenAPI specification.
+ */
 const createApp = async () => {
   validateGeoServerEnvironmentConfig(readGeoServerEnvironmentConfig());
   const openApiDocument = await loadOpenApiDocument();
@@ -40,7 +47,6 @@ const createApp = async () => {
   });
 
   app.decorate("openApiRuntime", openApiRuntime);
-
   /**
    * Converts unexpected runtime errors into a standardized 500 response.
    */
@@ -88,6 +94,7 @@ const createApp = async () => {
   app.register(registerLayerRoutes, { prefix: API_ROUTE_PREFIX });
   app.register(registerVocabRoutes, { prefix: API_ROUTE_PREFIX });
   app.register(registerWmsRoutes, { prefix: API_ROUTE_PREFIX });
+  app.register(registerWmtsRoutes, { prefix: API_ROUTE_PREFIX });
 
   await app.ready();
   app.openApiRuntime.assertRouteCoverage();

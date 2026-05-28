@@ -7,12 +7,12 @@ import test from "node:test";
 import type {
   GraphDbVocabularyLabel,
   GraphDbVocabularyTermStatement,
-} from "../../src/graphdb/types";
+} from "../../src/types/graphdb/graphDbTypes";
 import {
   buildGraphDbVocabularyTermsResponse,
   buildVocabularyTermBreadcrumbs,
-} from "../../src/services/vocabularyTermsService";
-import { resolveLocalizedGraphDbText } from "../../src/services/shared/localizedGraphDbText";
+} from "../../src/services/vocabularies/vocabularyTermsService";
+import { resolveLocalizedGraphDbText } from "../../src/services/shared/languageParametersService";
 
 const createTermIndex = (
   entries: Array<{

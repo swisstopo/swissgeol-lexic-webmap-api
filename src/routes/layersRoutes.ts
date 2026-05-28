@@ -12,9 +12,8 @@ import {
 import { registerOpenApiRoute } from "../openapi/registerOpenApiRoute";
 
 /**
- * Registers all layer endpoints under the active route prefix.
- * @param fastify Fastify server instance used to declare routes.
- * @returns Promise resolved when route registration is complete.
+ * Registers layer endpoints by pairing each OpenAPI path template with the
+ * Fastify path that will receive requests under the active API prefix.
  */
 export const registerLayerRoutes = async (fastify: FastifyInstance) => {
   registerOpenApiRoute(fastify, {

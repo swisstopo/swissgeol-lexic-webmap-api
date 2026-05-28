@@ -4,7 +4,7 @@
 
 import path from "path";
 import { execFileSync } from "child_process";
-import { assertOpenApiSpecExists } from "../src/openapi/configuration";
+import { assertOpenApiSpecExists } from "../src/configuration/openapi/configuration";
 
 const specPath = assertOpenApiSpecExists();
 const outputPath = path.resolve(__dirname, "..", "src", "types", "openapi.d.ts");

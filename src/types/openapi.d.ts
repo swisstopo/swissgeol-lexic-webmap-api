@@ -1124,7 +1124,7 @@ export interface paths {
                         /**
                          * @example {
                          *       "url": "https://dev-webmap-api.swissgeol.ch/wms",
-                         *       "body": "REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=\"tecto_lexic\" IN ( get_terms( \"North Alpine Foreland\" , True ) )&CRS=EPSG:2056",
+                         *       "body": "REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( \"tecto_units_augm\" , \"f-tectonic-term\" , \"https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland\" , \"true\" )&CRS=EPSG:2056",
                          *       "mimeType": "image/png",
                          *       "note": "The WMS URL includes encoded semantic query parameters."
                          *     }
@@ -1152,11 +1152,14 @@ export interface paths {
         };
         /**
          * Retrieve WMS service information
-         * @description This endpoint returns information about the WMS service or available maps depending on the specified parameters.
+         * @description WMS endpoint that complies with the OGC WMS standard, see at https://www.ogc.org/it/standards/wms/. The request may include standard WMS parameters such as REQUEST, SERVICE, VERSION, LAYERS, CRS, BBOX, WIDTH, HEIGHT, and FORMAT. Clients may also provide the optional SEMANTIC_FILTER parameter generated from /generateWmsRequest. When SEMANTIC_FILTER is omitted, the request is proxied without semantic filtering.
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Optional semantic filter expression generated from /generateWmsRequest. */
+                    SEMANTIC_FILTER?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1179,7 +1182,7 @@ export interface paths {
         put?: never;
         /**
          * Retrieve WMS service information
-         * @description This endpoint returns information about the WMS service or available maps depending on the specified parameters.
+         * @description WMS endpoint that complies with the OGC WMS standard, see at https://www.ogc.org/it/standards/wms/. POST requests use the same WMS parameters as GET requests, encoded as application/x-www-form-urlencoded to support long WMS filter payloads. Clients may also provide the optional SEMANTIC_FILTER parameter generated from /generateWmsRequest. When SEMANTIC_FILTER is omitted, the request is proxied without semantic filtering.
          */
         post: {
             parameters: {
@@ -1188,7 +1191,16 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** @description Optional semantic filter expression generated from /generateWmsRequest. */
+                        SEMANTIC_FILTER?: string;
+                    } & {
+                        [key: string]: string;
+                    };
+                };
+            };
             responses: {
                 /** @description Successful WMS response */
                 200: {
@@ -1203,6 +1215,70 @@ export interface paths {
                 500: components["responses"]["InternalServerError"];
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/wmts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get WMTS source data for a layer
+         * @description WMTS endpoint that complies with the OGC WMTS standard, see at https://www.ogc.org/it/standards/wmts/. Returns WMTS source values for loading the configured layer in a map.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /**
+                     * @description Configured WebMap layer identifier.
+                     * @example gc_bedrock
+                     */
+                    layerId: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description WMTS layer source data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        /**
+                         * @example {
+                         *       "layerId": "gc_bedrock",
+                         *       "source": {
+                         *         "urlWMTS": "https://dev-ogcservices.swissgeol.ch/geoserver/swisstopo/gc_bedrock/gwc/service/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities",
+                         *         "paramsWMTS": {
+                         *           "layer": "gc_bedrock",
+                         *           "style": "swisstopo:gc_bedrock",
+                         *           "matrixSet": "EPSG:2056",
+                         *           "format": "image/png"
+                         *         },
+                         *         "serverType": "geoserver",
+                         *         "crossOrigin": "anonymous"
+                         *       }
+                         *     }
+                         */
+                        "application/json": components["schemas"]["WmtsResponse"];
+                    };
+                };
+                400: components["responses"]["BadRequest"];
+                404: components["responses"]["NotFound"];
+                500: components["responses"]["InternalServerError"];
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1269,13 +1345,59 @@ export interface components {
             url: string;
             /**
              * @description WMS request parameter string generated by /generateWmsRequest.
-             * @example REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER="tecto_lexic" IN ( get_terms( "North Alpine Foreland" , True ) )&CRS=EPSG:2056
+             * @example REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( "tecto_units_augm" , "f-tectonic-term" , "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland" , "true" )&CRS=EPSG:2056
              */
             body: string;
             /** @example image/png */
             mimeType: string;
             /** @example WMS URL includes encoded semantic query parameters. */
             note: string;
+        };
+        WmtsResponse: {
+            /**
+             * @description Configured WebMap layer identifier.
+             * @example gc_bedrock
+             */
+            layerId: string;
+            source: components["schemas"]["WmtsSource"];
+        };
+        WmtsSource: {
+            /**
+             * Format: uri
+             * @description WMTS capabilities URL used by clients before creating the OpenLayers source.
+             * @example https://dev-ogcservices.swissgeol.ch/geoserver/swisstopo/gc_bedrock/gwc/service/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities
+             */
+            urlWMTS: string;
+            paramsWMTS: components["schemas"]["WmtsParameters"];
+            /**
+             * @example geoserver
+             * @enum {string}
+             */
+            serverType: "geoserver";
+            /** @example anonymous */
+            crossOrigin: string;
+        };
+        WmtsParameters: {
+            /**
+             * @description WMTS layer identifier passed to OpenLayers optionsFromCapabilities.
+             * @example gc_bedrock
+             */
+            layer: string;
+            /**
+             * @description WMTS style identifier passed to OpenLayers optionsFromCapabilities.
+             * @example swisstopo:gc_bedrock
+             */
+            style?: string;
+            /**
+             * @description Tile matrix set identifier.
+             * @example EPSG:2056
+             */
+            matrixSet: string;
+            /**
+             * @example image/png
+             * @enum {string}
+             */
+            format: "image/png" | "image/jpeg";
         };
         Error: {
             code?: number;

@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { FastifyBaseLogger } from "fastify";
-import { resolveVocabularyListingName } from "../../src/services/vocabService";
+import { resolveVocabularyListingName } from "../../src/services/vocabularies/vocabService";
 
 const createLoggerSpy = () => {
   const warnings: Array<{

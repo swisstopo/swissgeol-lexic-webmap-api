@@ -10,19 +10,19 @@ import {
   CHRONOSTRATIGRAPHY_QUERY_BETWEEN,
   CHRONOSTRATIGRAPHY_QUERY_OLDER,
   CHRONOSTRATIGRAPHY_QUERY_YOUNGER,
-} from "../../src/graphdb/queryCatalog";
+} from "../../src/configuration/graphdb/catalogs/queryCatalog";
 import {
   getAllLayerConfigurations,
   getLayerConfigurationById,
   getLayerIdsSupportingFilterId,
-} from "../../src/layers/configuration";
+} from "../../src/services/layers/layerConfigurationRegistry";
 import {
   getAllFilterConfigurations,
   getFilterConfigurationById,
   getTermFilterConfigurationByVocabularyId,
   getVocabularyFilterId,
   getVocabularyIdByFilterId,
-} from "../../src/filters/configuration";
+} from "../../src/services/filters/filterConfigurationRegistry";
 
 test("contains standalone backend configuration for the supported public filters", () => {
   assert.deepEqual(getAllFilterConfigurations(), [

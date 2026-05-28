@@ -5,7 +5,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateFilterRequest } from "../../src/services/filterRequestValidationService";
+import { validateFilterRequest } from "../../src/services/filters/validation/filterRequestValidationService";
 
 test("returns 404 when the requested layer is not configured", () => {
   assert.deepEqual(validateFilterRequest("unknown_layer", []), {

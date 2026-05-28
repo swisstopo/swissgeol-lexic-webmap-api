@@ -10,8 +10,8 @@ import {
   getFilterableLayerConfigurations,
   getLayerConfigurationById,
   supportsAttributeList,
-} from "../../src/layers/configuration";
-import { LAYER_FILTER_CATALOG } from "../../src/layers/filterCatalog";
+} from "../../src/services/layers/layerConfigurationRegistry";
+import { LAYER_FILTER_CATALOG } from "../../src/configuration/layers/catalogs/filterCatalog";
 
 test("contains only filterable layers from the current sandbox baseline", () => {
   const layerIds = getAllLayerConfigurations().map((layer) => layer.id);

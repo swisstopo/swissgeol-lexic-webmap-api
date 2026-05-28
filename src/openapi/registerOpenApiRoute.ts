@@ -3,29 +3,12 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import type { OpenApiHandler, OpenApiMethod, OpenApiPath } from "./types";
+import type { OpenApiHandler, OpenApiMethod, OpenApiPath } from "../types/openapi/openApiRouteTypes";
 import { buildErrorBody } from "../utils/errors";
-
-interface RegisterOpenApiRouteOptions<
-  TPath extends OpenApiPath,
-  TMethod extends OpenApiMethod,
-> {
-  method: TMethod;
-  specPath: TPath;
-  fastifyPath: string;
-  handler: OpenApiHandler<TPath, TMethod>;
-}
-
-interface ValidationErrorDetail {
-  location?: string;
-  path?: string;
-  message?: string;
-  errorCode?: string;
-}
-
-interface ValidationDetails {
-  errors?: ValidationErrorDetail[];
-}
+import type {
+  RegisterOpenApiRouteOptions,
+  ValidationDetails,
+} from "../types/openapi/openApiRouteRegistrationTypes";
 
 const formatValidationMessage = (details: unknown): string => {
   const errors = (details as ValidationDetails | undefined)?.errors;
@@ -64,6 +47,24 @@ const formatValidationMessage = (details: unknown): string => {
   return firstError.message || "Request validation failed";
 };
 
+/**
+ * Registers one Fastify handler as the implementation of one OpenAPI operation.
+ *
+ * Runtime flow for every request:
+ * 1. `OpenApiRuntime.registerRoute` records the route for startup coverage
+ *    checks.
+ * 2. Before the controller runs, `validateRequest` checks path/query/body/header
+ *    values against the exact OpenAPI operation.
+ * 3. The typed controller returns an `OpenApiRouteResult` instead of mutating
+ *    `reply` directly.
+ * 4. `validateResponse` checks the controller body for the declared status code.
+ * 5. JSON responses are sent from `body`; binary routes send `payload` with the
+ *    controller-provided content type.
+ *
+ * This wrapper is why controllers can stay small: they only decide service
+ * delegation and HTTP status mapping, while request/response contract checks
+ * remain centralized here.
+ */
 export const registerOpenApiRoute = <
   TPath extends OpenApiPath,
   TMethod extends OpenApiMethod,
@@ -111,6 +112,13 @@ export const registerOpenApiRoute = <
         responseProblem.message
       );
       throw new Error(responseProblem.message);
+    }
+
+    if (result.payload !== undefined) {
+      return reply
+        .status(result.statusCode)
+        .type(result.contentType)
+        .send(result.payload as never);
     }
 
     return reply.status(result.statusCode).send(result.body as never);

@@ -6,17 +6,19 @@ import {
   getDefaultFiltersResponse,
   getLayerFiltersResponse,
   getLayersResponse,
-} from "../services/layersService";
-import { getLiveLayerAttributesResponse } from "../services/layerAttributeListService";
-import type { OpenApiHandler, OpenApiRequest } from "../openapi/types";
-import { jsonResponse } from "../openapi/types";
+} from "../services/layers/layersService";
+import { getLiveLayerAttributesResponse } from "../services/geoserver/layerAttributeListService";
+import type { OpenApiHandler, OpenApiRequest } from "../types/openapi/openApiRouteTypes";
+import { jsonResponse } from "../openapi/response";
 import { buildErrorBody } from "../utils/errors";
 
 /**
- * Returns the list of available layers.
- * @param _req Fastify request object (unused).
- * @param reply Fastify reply object.
- * @returns Fastify reply containing the layer collection payload.
+ * Handles the `/layers` HTTP operation.
+ *
+ * The handler intentionally ignores `lang` for now because layer/filter labels
+ * are still served from the static catalog. All response assembly is delegated
+ * to `getLayersResponse`; this controller only wraps the result in the typed
+ * OpenAPI response object.
  */
 export const getLayersHandler: OpenApiHandler<"/layers", "get"> = async (
   request: OpenApiRequest<"/layers", "get">
@@ -26,11 +28,16 @@ export const getLayersHandler: OpenApiHandler<"/layers", "get"> = async (
 };
 
 /**
- * Returns filter definitions for a specific layer.
- * Responds with `404` when the layer identifier does not exist.
- * @param req Fastify request containing `layerId` path params.
- * @param reply Fastify reply object.
- * @returns Fastify reply containing layer filters or a standardized not-found response.
+ * Handles layer filter lookup at the HTTP boundary.
+ *
+ * Flow:
+ * 1. Read `layerId` from the path.
+ * 2. Ask `getLayerFiltersResponse` to resolve the configured layer and its
+ *    public filter metadata.
+ * 3. Convert a missing layer to the standardized 404 response.
+ *
+ * The controller does not read filter catalogs directly; service-level registry
+ * functions own that mapping.
  */
 export const getLayerFiltersHandler: OpenApiHandler<
   "/layers/{layerId}/filters",
@@ -50,11 +57,16 @@ export const getLayerFiltersHandler: OpenApiHandler<
 };
 
 /**
- * Returns the attribute list exposed by a specific layer.
- * Responds with `404` when the layer identifier does not exist.
- * @param req Fastify request containing `layerId` path params.
- * @param reply Fastify reply object.
- * @returns Fastify reply containing attributes or a standardized not-found response.
+ * Handles live layer attribute lookup through the GeoServer-backed service.
+ *
+ * Flow:
+ * 1. Read `layerId` from the path.
+ * 2. Delegate to `getLiveLayerAttributesResponse`, which reads layer
+ *    configuration, calls GeoServer WFS DescribeFeatureType when configured,
+ *    and extracts public attribute names.
+ * 3. Convert `null` to 404 and otherwise return the service payload.
+ *
+ * No GeoServer URL or XML parsing belongs in this controller.
  */
 export const getLayerAttributeListHandler: OpenApiHandler<
   "/layers/{layerId}/attributeList",
@@ -73,12 +85,12 @@ export const getLayerAttributeListHandler: OpenApiHandler<
 };
 
 /**
- * Returns the default filters that should be applied for a layer and vocabulary term.
- * Responds with `404` when the layer identifier does not exist and `400` when
- * the term is unsupported or the layer does not expose the matching vocabulary filter.
- * @param req Fastify request containing `layerId` path params and the `term` query param.
- * @param reply Fastify reply object.
- * @returns Fastify reply containing default filters or a standardized error response.
+ * Handles default-filter resolution for a layer and vocabulary term.
+ *
+ * `getDefaultFiltersResponse` performs the domain work: infer vocabulary from
+ * the term URI, map vocabulary to filter id, check layer support, and build the
+ * default filter payload. This controller only forwards `layerId` and `term`,
+ * then maps the service result to either 200, 400, or 404.
  */
 export const getLayerDefaultFiltersHandler: OpenApiHandler<
   "/layers/{layerId}/defaultFilters",

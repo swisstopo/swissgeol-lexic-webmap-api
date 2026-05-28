@@ -8,7 +8,7 @@ import {
   buildDescribeFeatureTypeUrl,
   extractAttributeNamesFromDescribeFeatureType,
   getLiveLayerAttributesResponse,
-} from "../../src/services/layerAttributeListService";
+} from "../../src/services/geoserver/layerAttributeListService";
 
 const TECTO_UNITS_DFT_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:gml="http://www.opengis.net/gml" xmlns:swisstopo="https://www.swisstopo.admin.ch" xmlns:xsd="http://www.w3.org/2001/XMLSchema">

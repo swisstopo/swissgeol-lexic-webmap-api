@@ -9,8 +9,8 @@ import {
   resolveChronostratigraphyConcepts,
   resolveTermFilterNarrowers,
   type SemanticConceptQueryExecutor,
-} from "../../src/services/filterSemanticResolverService";
-import type { PublicVocabularyId } from "../../src/graphdb/types";
+} from "../../src/services/graphdb/filterSemanticResolverService";
+import type { PublicVocabularyId } from "../../src/types/graphdb/graphDbTypes";
 
 test("resolves narrower terms through the configured term filter query", async () => {
   const executedQueries: Array<{

@@ -5,10 +5,10 @@
 import "dotenv/config";
 import {
   buildGraphDbVocabulariesConfig,
-  type GraphDbVocabularyConfig,
   readGraphDbEnvironmentConfig,
-} from "../../src/graphdb/configuration";
-import { GRAPHDB_VOCABULARY_DEFINITIONS } from "../../src/graphdb/vocabularyDefinitions";
+} from "../../src/configuration/graphdb/configuration";
+import type { GraphDbVocabularyConfig } from "../../src/types/graphdb/graphDbConfigurationTypes";
+import { GRAPHDB_VOCABULARY_DEFINITIONS } from "../../src/configuration/graphdb/catalogs/vocabularyDefinitionsCatalog";
 import { GraphDBClient, QueryExecutor, getQueryConfig } from "../../src/libs/graphdb_connector";
 import {
   fetchVocabulariesData,

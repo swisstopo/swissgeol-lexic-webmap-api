@@ -5,8 +5,8 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { PublicVocabularyId } from "../../src/graphdb/types";
-import { resolveFiltersForLayer } from "../../src/services/filterResolutionService";
+import type { PublicVocabularyId } from "../../src/types/graphdb/graphDbTypes";
+import { resolveFiltersForLayer } from "../../src/services/filters/filterResolutionService";
 
 const TECTONIC_TERM =
   "https://dev-lexic.swissgeol.ch/TectonicUnits/UpperRhineGraben";

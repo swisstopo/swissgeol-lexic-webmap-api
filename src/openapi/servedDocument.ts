@@ -1,5 +1,5 @@
 /**
- * @fileoverview Builds the OpenAPI document served by the mock Swagger UI.
+ * @fileoverview Builds the OpenAPI document served by the local Swagger UI.
  */
 
 import type { OpenAPIV3 } from "openapi-types";
@@ -11,15 +11,14 @@ import {
   getLayerFiltersResponse,
   getLayersResponse,
   getMockLayerAttributesResponse,
-} from "../services/layersService";
+} from "../services/layers/layersService";
 import {
   getVocabulariesResponse,
   getVocabularyLayers,
   getVocabularyTerms,
-} from "../services/vocabService";
+} from "../services/vocabularies/vocabService";
 import { API_ROUTE_PREFIX } from "./specification";
-
-type ExampleMap = Record<string, OpenAPIV3.ExampleObject | OpenAPIV3.ReferenceObject>;
+import type { ExampleMap } from "../types/openapi/servedDocumentTypes";
 
 const cloneDocument = (document: OpenAPIV3.Document): OpenAPIV3.Document =>
   JSON.parse(JSON.stringify(document)) as OpenAPIV3.Document;
@@ -128,7 +127,13 @@ const createDefaultFilterExamples = (): ExampleMap => {
 };
 
 /**
- * Applies mock-runtime adjustments to the repository OpenAPI document without changing the contract shape.
+ * Applies local runtime adjustments to the repository OpenAPI document without
+ * changing the contract shape.
+ *
+ * The validator uses the dereferenced source document, while Swagger UI receives
+ * this cloned version with local server metadata and live examples injected from
+ * the same response builders used by controllers. That keeps documentation
+ * useful without editing the checked-in specification file.
  */
 export const buildServedOpenApiDocument = (
   sourceDocument: OpenAPIV3.Document
@@ -138,7 +143,7 @@ export const buildServedOpenApiDocument = (
   document.servers = [
     {
       url: API_ROUTE_PREFIX,
-      description: "Current mock server",
+      description: "Current local server",
     },
   ];
 

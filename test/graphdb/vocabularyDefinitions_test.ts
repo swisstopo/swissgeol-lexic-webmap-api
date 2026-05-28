@@ -9,7 +9,7 @@ import {
   inferVocabularyIdFromTermUri,
   isPublicVocabularyId,
   getGraphDbVocabularyDefinition,
-} from "../../src/graphdb/vocabularyDefinitions";
+} from "../../src/services/graphdb/vocabularyDefinitionRegistry";
 
 test("recognizes supported public vocabulary ids", () => {
   assert.equal(isPublicVocabularyId("chronostratigraphy"), true);

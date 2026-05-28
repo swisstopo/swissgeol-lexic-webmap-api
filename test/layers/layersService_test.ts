@@ -5,12 +5,12 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getFilterableLayerConfigurations } from "../../src/layers/configuration";
-import { LAYER_FILTER_CATALOG } from "../../src/layers/filterCatalog";
+import { getFilterableLayerConfigurations } from "../../src/services/layers/layerConfigurationRegistry";
+import { LAYER_FILTER_CATALOG } from "../../src/configuration/layers/catalogs/filterCatalog";
 import {
   getLayerFiltersResponse,
   getLayersResponse,
-} from "../../src/services/layersService";
+} from "../../src/services/layers/layersService";
 
 test("builds the /layers payload from filterable configured layers only", () => {
   const response = getLayersResponse();

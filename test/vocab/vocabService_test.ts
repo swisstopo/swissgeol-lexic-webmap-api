@@ -5,7 +5,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getVocabularyLayers } from "../../src/services/vocabService";
+import { getVocabularyLayers } from "../../src/services/vocabularies/vocabService";
 
 test("builds vocabulary layers from configured filter support", () => {
   assert.deepEqual(getVocabularyLayers("chronostratigraphy"), {

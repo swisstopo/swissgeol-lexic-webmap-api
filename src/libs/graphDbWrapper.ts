@@ -5,54 +5,42 @@
 import type {
   GraphDbVocabulariesConfig,
   GraphDbVocabularyConfig,
-} from "../graphdb/configuration";
-import { buildVocabularyListingSchemeLabelsQuery } from "../graphdb/queryCatalog";
-import { GRAPHDB_VOCABULARY_DEFINITIONS } from "../graphdb/vocabularyDefinitions";
+} from "../types/graphdb/graphDbConfigurationTypes";
+import { buildVocabularyListingSchemeLabelsQuery } from "../configuration/graphdb/catalogs/queryCatalog";
+import { GRAPHDB_VOCABULARY_DEFINITIONS } from "../configuration/graphdb/catalogs/vocabularyDefinitionsCatalog";
 import type {
   GraphDbVocabularyLabel,
   GraphDbVocabularyTermStatement,
   GraphDbVocabularyTerm,
   PublicVocabularyId,
-} from "../graphdb/types";
+} from "../types/graphdb/graphDbTypes";
+import type {
+  GraphDbVocabulariesResult,
+  LiteralBinding,
+  NamedNodeBinding,
+  VocabularyConceptQueryResult,
+  VocabularyQueryResult,
+  VocabularyTermStatementQueryResult,
+} from "../types/graphdb/graphDbWrapperTypes";
 import { GraphDBClient, QueryExecutor, getQueryConfig } from "./graphdb_connector";
-
-interface NamedNodeBinding {
-  id?: string;
-  value?: string;
-}
-
-interface LiteralBinding {
-  value: string;
-  language?: string;
-}
-
-interface VocabularyQueryResult {
-  term: NamedNodeBinding;
-  prefLabel: LiteralBinding;
-}
-
-interface VocabularyTermStatementQueryResult {
-  term: NamedNodeBinding;
-  predicate: NamedNodeBinding;
-  object: unknown;
-}
-
-interface VocabularyConceptQueryResult {
-  concept: NamedNodeBinding;
-}
-
-type GraphDbVocabulariesResult = Record<
-  PublicVocabularyId,
-  GraphDbVocabularyTerm[]
->;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
+/**
+ * Guards GraphDB named-node bindings from the connector. Some connector paths
+ * expose the URI on `id` and others on `value`, so downstream mapping accepts
+ * both while still rejecting non-resource bindings.
+ */
 const isNamedNodeBinding = (value: unknown): value is NamedNodeBinding =>
   isRecord(value) &&
   (typeof value.id === "string" || typeof value.value === "string");
 
+/**
+ * Guards literal bindings and preserves the optional language tag needed by
+ * vocabulary localization. Named nodes are deliberately excluded so callers can
+ * distinguish literal labels from resource relationships.
+ */
 const isLiteralBinding = (value: unknown): value is LiteralBinding =>
   isRecord(value) &&
   typeof value.value === "string" &&
@@ -85,6 +73,11 @@ const buildRepositoryUrl = (
   repositoryId: string
 ): string => `${baseUrl}/repositories/${repositoryId}`;
 
+/**
+ * Adapts GraphDB `allConcept` rows into the compact term list used by legacy
+ * vocabulary consumers. Shape checks stay in this wrapper so services only see
+ * typed domain objects, not raw SPARQL bindings.
+ */
 const mapVocabularyQueryResults = (
   vocabulary: GraphDbVocabularyConfig,
   queryResults: unknown[]
@@ -103,6 +96,11 @@ const mapVocabularyQueryResults = (
     };
   });
 
+/**
+ * Creates the GraphDB connector objects and executes a SPARQL query against one
+ * repository. This is the only place in the vocabulary domain that should know
+ * about connector construction, repository URLs, or the optional row limit.
+ */
 const executeVocabularyQuery = async (
   vocabulary: GraphDbVocabularyConfig,
   sparqlQuery: string,
@@ -135,6 +133,11 @@ const fetchVocabularyData = async (
   return mapVocabularyQueryResults(vocabulary, queryResults);
 };
 
+/**
+ * Fetches localized labels for a vocabulary listing scheme. The result is kept
+ * language-tagged because `/vocabularies` resolves language fallback at the
+ * service layer, where warning logging and configured fallbacks are available.
+ */
 const fetchVocabularyListingLabels = async (
   vocabulary: GraphDbVocabularyConfig,
   schemeUri: string
@@ -161,6 +164,12 @@ const fetchVocabularyListingLabels = async (
   });
 };
 
+/**
+ * Loads the flat statement stream for one vocabulary and normalizes GraphDB
+ * bindings into simple predicate/object records. Higher-level grouping,
+ * localization, and breadcrumb construction intentionally happen in the
+ * vocabulary service, not in this connector wrapper.
+ */
 const fetchVocabularyTermStatements = async (
   vocabulary: GraphDbVocabularyConfig,
   vocabularyPrefixUrl: string

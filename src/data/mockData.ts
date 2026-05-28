@@ -3,59 +3,30 @@
  * This file centralizes all hard-coded data returned by the mock endpoints.
  */
 
-export type FilterId =
-  | "f-chronostrat-term"
-  | "f-tectonic-term"
-  | "f-lithostrat-term"
-  | "f-lithology-term"
-  | "f-byAttribute";
-
-export interface FilterDefinition {
-  id: FilterId;
-  name: string;
-  title: string;
-  description: string;
-}
-
-export interface LayerDefinition {
-  id: string;
-  name: string;
-  filterable: boolean;
-  filterIds: FilterId[];
-  attributes: string[];
-}
-
-export interface VocabularyDefinition {
-  id: string;
-  name: string;
-}
-
-export type VocabularyLanguage = "en" | "it" | "de" | "fr";
-
-export type VocabularyBreadcrumbMap = Record<number, string>;
-
-export interface VocabularyTermLocalization {
-  label: string;
-  description: string;
-  breadcrumbs: VocabularyBreadcrumbMap;
-}
-
-export interface VocabularyTermTranslations
-  extends Partial<Record<VocabularyLanguage, VocabularyTermLocalization>> {
-  en: VocabularyTermLocalization;
-}
-
-export interface VocabularyTermDefinition {
-  term: string;
-  translations: VocabularyTermTranslations;
-}
-
-export interface WmsResponse {
-  url: string;
-  body: string;
-  mimeType: string;
-  note: string;
-}
+import type {
+  FilterDefinition,
+  FilterId,
+} from "../types/filters/mockFilterTypes";
+import type { LayerDefinition } from "../types/layers/mockLayerTypes";
+import type {
+  VocabularyDefinition,
+  VocabularyFilterMap,
+  VocabularyTermDefinition,
+} from "../types/vocabularies/vocabularyMockTypes";
+export type {
+  FilterDefinition,
+  FilterId,
+} from "../types/filters/mockFilterTypes";
+export type { LayerDefinition } from "../types/layers/mockLayerTypes";
+export type { VocabularyLanguage } from "../types/vocabularies/vocabularyLanguageTypes";
+export type {
+  VocabularyBreadcrumbMap,
+  VocabularyDefinition,
+  VocabularyFilterMap,
+  VocabularyTermDefinition,
+  VocabularyTermLocalization,
+  VocabularyTermTranslations,
+} from "../types/vocabularies/vocabularyMockTypes";
 
 export const WEBMAP_ID = "SwissTopoMap";
 
@@ -683,16 +654,9 @@ export const VOCABULARY_TERMS: Record<string, string[]> = Object.fromEntries(
   ])
 ) as Record<string, string[]>;
 
-export const VOCABULARY_FILTER_MAP: Record<string, FilterId> = {
+export const VOCABULARY_FILTER_MAP: VocabularyFilterMap = {
   "chronostratigraphy": "f-chronostrat-term",
   "tectonic-units": "f-tectonic-term",
   "lithostratigraphy": "f-lithostrat-term",
   "lithology": "f-lithology-term",
-};
-
-export const WMS_RESPONSE_TEMPLATE: WmsResponse = {
-  url: "https://dev-webmap-api.swissgeol.ch/wms",
-  body: 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS={{LAYER_ID}}&TILED=true&SEMANTIC_FILTER="tecto_lexic" IN ( get_terms( "North Alpine Foreland" , True ) )&CRS=EPSG:2056',
-  mimeType: "image/png",
-  note: "The WMS URL includes encoded semantic query parameters.",
 };

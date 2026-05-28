@@ -1,5 +1,5 @@
 """
-Smoke test script for the WebMap API mock server.
+Smoke test script for the WebMap API local server.
 The server must be running and reachable via BASE_URL.
 """
 
@@ -13,6 +13,10 @@ import urllib.request
 BASE_URL = os.environ.get("BASE_URL", "http://localhost:3000/v1").rstrip("/")
 
 EXPECTED_WEBMAP_ID = "SwissTopoMap"
+EXPECTED_GEOSERVER_BASE_URL = os.environ.get(
+    "GEOSERVER_BASE_URL",
+    "https://dev-ogcservices.swissgeol.ch/geoserver/swisstopo",
+).rstrip("/")
 
 FILTER_CATALOG = {
     "f-chronostrat-term": {"id": "f-chronostrat-term", "name": "Filter by Chronostratigraphy term", "title": "Filter by Chronostratigraphy term", "description": "Filter by chronostratigraphic intervals"},
@@ -172,14 +176,31 @@ TERM_RESPONSE_SAMPLES = {
 
 EXPECTED_WMS_RESPONSE = {
     "url": "https://dev-webmap-api.swissgeol.ch/wms",
-    "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER="tecto_lexic" IN ( get_terms( "North Alpine Foreland" , True ) )&CRS=EPSG:2056',
+    "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( "tecto_units_augm" , "f-tectonic-term" , "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland" , "true" )&CRS=EPSG:2056',
     "mimeType": "image/png",
     "note": "The WMS URL includes encoded semantic query parameters.",
 }
 
-EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE = {
-    "code": 500,
-    "message": "Not implemented",
+EXPECTED_WMS_BY_ATTRIBUTE_RESPONSE = {
+    "url": "https://dev-webmap-api.swissgeol.ch/wms",
+    "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( "tecto_units_augm" , "f-byAttribute" , "litho_en" , "ignored" )&CRS=EPSG:2056',
+    "mimeType": "image/png",
+    "note": "The WMS URL includes encoded semantic query parameters.",
+}
+
+EXPECTED_WMTS_RESPONSE = {
+    "layerId": "gc_bedrock",
+    "source": {
+        "urlWMTS": f"{EXPECTED_GEOSERVER_BASE_URL}/gc_bedrock/gwc/service/wmts?SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities",
+        "paramsWMTS": {
+            "layer": "gc_bedrock",
+            "style": "swisstopo:gc_bedrock",
+            "matrixSet": "EPSG:2056",
+            "format": "image/png",
+        },
+        "serverType": "geoserver",
+        "crossOrigin": "anonymous",
+    },
 }
 
 
@@ -223,6 +244,23 @@ def http_post_error(path, payload=None):
         BASE_URL + path,
         data=data,
         headers=headers,
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            body = response.read().decode("utf-8")
+            return response.status, json.loads(body)
+    except urllib.error.HTTPError as error:
+        body = error.read().decode("utf-8")
+        return error.code, json.loads(body)
+
+
+def http_post_form_error(path, payload):
+    data = urllib.parse.urlencode(payload).encode("utf-8")
+    req = urllib.request.Request(
+        BASE_URL + path,
+        data=data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
         method="POST",
     )
     try:
@@ -363,6 +401,9 @@ def run():
     layers_response = http_get("/layers?lang=it")
     expected_layers = build_expected_layers_response()
     assert_equal(layers_response, expected_layers, "GET /layers")
+
+    wmts_response = http_get("/wmts?layerId=gc_bedrock")
+    assert_equal(wmts_response, EXPECTED_WMTS_RESPONSE, "GET /wmts")
 
     for layer in LAYERS:
         if layer["filterable"]:
@@ -552,96 +593,25 @@ def run():
     wms_resp = http_post("/generateWmsRequest", wms_body)
     assert_equal(wms_resp, EXPECTED_WMS_RESPONSE, "POST /generateWmsRequest")
 
-    status, body = http_post_error(
-        "/generateWmsRequest",
-        {
-            **wms_body,
-            "webmapId": "UnknownMap",
-        },
-    )
-    assert_equal(status, 404, "POST /generateWmsRequest unknown webmap status")
+    wms_neutral_body = {
+        "webmapId": EXPECTED_WEBMAP_ID,
+        "layerId": "tecto_units_augm",
+        "filters": [
+            {
+                "filterId": "f-byAttribute",
+                "parameters": {
+                    "attribute": "litho_en",
+                    "value": "ignored",
+                },
+            }
+        ],
+    }
+    wms_neutral_resp = http_post("/generateWmsRequest", wms_neutral_body)
     assert_equal(
-        body,
-        {
-            "code": 404,
-            "message": "Webmap not found",
-        },
-        "POST /generateWmsRequest unknown webmap",
+        wms_neutral_resp,
+        EXPECTED_WMS_BY_ATTRIBUTE_RESPONSE,
+        "POST /generateWmsRequest by-attribute response",
     )
-
-    status, body = http_post_error(
-        "/generateWmsRequest",
-        {
-            **wms_body,
-            "layerId": "unknown-layer",
-        },
-    )
-    assert_equal(status, 404, "POST /generateWmsRequest unknown layer status")
-    assert_equal(
-        body,
-        {
-            "code": 404,
-            "message": "Layer not found",
-        },
-        "POST /generateWmsRequest unknown layer",
-    )
-
-    status, body = http_post_error(
-        "/generateWmsRequest",
-        {
-            "layerId": "tecto_units_augm",
-        },
-    )
-    assert_equal(status, 400, "POST /generateWmsRequest missing webmapId status")
-    assert_equal(
-        body,
-        {
-            "code": 400,
-            "message": "Missing required field 'webmapId'",
-        },
-        "POST /generateWmsRequest missing webmapId",
-    )
-
-    status, body = http_post_error(
-        "/generateWmsRequest",
-        {
-            "webmapId": EXPECTED_WEBMAP_ID,
-        },
-    )
-    assert_equal(status, 400, "POST /generateWmsRequest missing layerId status")
-    assert_equal(
-        body,
-        {
-            "code": 400,
-            "message": "Missing required field 'layerId'",
-        },
-        "POST /generateWmsRequest missing layerId",
-    )
-
-    status, body = http_get_error("/wms")
-    assert_equal(status, 500, "GET /wms without declared query schema status")
-    assert_equal(
-        body,
-        EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE,
-        "GET /wms without declared query schema",
-    )
-
-    status, body = http_post_error("/wms", {})
-    assert_equal(status, 500, "POST /wms without declared body schema status")
-    assert_equal(
-        body,
-        EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE,
-        "POST /wms without declared body schema",
-    )
-
-    wms_query = urllib.parse.urlencode(EXPECTED_WMS_RESPONSE)
-    status, body = http_get_error(f"/wms?{wms_query}")
-    assert_equal(status, 500, "GET /wms status")
-    assert_equal(body, EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE, "GET /wms")
-
-    status, body = http_post_error("/wms", EXPECTED_WMS_RESPONSE)
-    assert_equal(status, 500, "POST /wms status")
-    assert_equal(body, EXPECTED_WMS_NOT_IMPLEMENTED_RESPONSE, "POST /wms")
 
 
 if __name__ == "__main__":

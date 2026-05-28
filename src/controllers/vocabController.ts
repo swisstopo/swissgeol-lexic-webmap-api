@@ -5,11 +5,11 @@
 import {
   getGraphDbVocabulariesResponse,
   getVocabularyLayers as getVocabularyLayersData,
-} from "../services/vocabService";
-import type { OpenApiHandler, OpenApiRequest } from "../openapi/types";
-import { jsonResponse } from "../openapi/types";
-import type { PublicVocabularyId } from "../graphdb/types";
-import { getGraphDbVocabularyTermsResponse } from "../services/vocabularyTermsService";
+} from "../services/vocabularies/vocabService";
+import type { OpenApiHandler, OpenApiRequest } from "../types/openapi/openApiRouteTypes";
+import { jsonResponse } from "../openapi/response";
+import type { PublicVocabularyId } from "../types/graphdb/graphDbTypes";
+import { getGraphDbVocabularyTermsResponse } from "../services/vocabularies/vocabularyTermsService";
 
 const getRequiredVocabularyTerms = async (
   vocabularyId: PublicVocabularyId,
@@ -26,10 +26,8 @@ const getRequiredVocabularyLayers = (vocabularyId: string) => {
 };
 
 /**
- * Returns the list of available vocabularies.
- * @param _req Fastify request object (unused).
- * @param reply Fastify reply object.
- * @returns Fastify reply containing the vocabulary collection payload.
+ * Handles vocabulary listing at the HTTP boundary and delegates GraphDB access
+ * and language fallback behavior to the vocabulary service.
  */
 export const getVocabulariesHandler: OpenApiHandler<
   "/vocabularies",
@@ -41,11 +39,7 @@ export const getVocabulariesHandler: OpenApiHandler<
   );
 
 /**
- * Returns terms for the vocabulary identified by the route parameter.
- * Responds with `404` when the vocabulary identifier is unknown.
- * @param req Fastify request containing `vocabularyId` path params.
- * @param reply Fastify reply object.
- * @returns Fastify reply containing vocabulary terms or a standardized not-found response.
+ * Handles chronostratigraphy term listing for the fixed OpenAPI path.
  */
 export const getChronostratigraphyTermsHandler: OpenApiHandler<
   "/vocabularies/chronostratigraphy/terms",
@@ -58,6 +52,9 @@ export const getChronostratigraphyTermsHandler: OpenApiHandler<
     await getRequiredVocabularyTerms("chronostratigraphy", request.query.lang)
   );
 
+/**
+ * Handles tectonic-unit term listing for the fixed OpenAPI path.
+ */
 export const getTectonicUnitsTermsHandler: OpenApiHandler<
   "/vocabularies/tectonic-units/terms",
   "get"
@@ -67,6 +64,9 @@ export const getTectonicUnitsTermsHandler: OpenApiHandler<
     await getRequiredVocabularyTerms("tectonic-units", request.query.lang)
   );
 
+/**
+ * Handles lithostratigraphy term listing for the fixed OpenAPI path.
+ */
 export const getLithostratigraphyTermsHandler: OpenApiHandler<
   "/vocabularies/lithostratigraphy/terms",
   "get"
@@ -78,6 +78,9 @@ export const getLithostratigraphyTermsHandler: OpenApiHandler<
     await getRequiredVocabularyTerms("lithostratigraphy", request.query.lang)
   );
 
+/**
+ * Handles lithology term listing for the fixed OpenAPI path.
+ */
 export const getLithologyTermsHandler: OpenApiHandler<
   "/vocabularies/lithology/terms",
   "get"
@@ -88,11 +91,7 @@ export const getLithologyTermsHandler: OpenApiHandler<
   );
 
 /**
- * Returns layers associated with a known vocabulary identifier.
- * Responds with `404` when the vocabulary identifier is unknown.
- * @param vocabularyId Vocabulary identifier resolved by the route layer.
- * @param reply Fastify reply object.
- * @returns Fastify reply containing vocabulary-layer references or a standardized not-found response.
+ * Handles chronostratigraphy layer references for the fixed OpenAPI path.
  */
 export const getChronostratigraphyLayersHandler: OpenApiHandler<
   "/vocabularies/chronostratigraphy/layers",
@@ -103,6 +102,9 @@ export const getChronostratigraphyLayersHandler: OpenApiHandler<
     getRequiredVocabularyLayers("chronostratigraphy")
   );
 
+/**
+ * Handles tectonic-unit layer references for the fixed OpenAPI path.
+ */
 export const getTectonicUnitsLayersHandler: OpenApiHandler<
   "/vocabularies/tectonic-units/layers",
   "get"
@@ -112,6 +114,9 @@ export const getTectonicUnitsLayersHandler: OpenApiHandler<
     getRequiredVocabularyLayers("tectonic-units")
   );
 
+/**
+ * Handles lithostratigraphy layer references for the fixed OpenAPI path.
+ */
 export const getLithostratigraphyLayersHandler: OpenApiHandler<
   "/vocabularies/lithostratigraphy/layers",
   "get"
@@ -121,6 +126,9 @@ export const getLithostratigraphyLayersHandler: OpenApiHandler<
     getRequiredVocabularyLayers("lithostratigraphy")
   );
 
+/**
+ * Handles lithology layer references for the fixed OpenAPI path.
+ */
 export const getLithologyLayersHandler: OpenApiHandler<
   "/vocabularies/lithology/layers",
   "get"
