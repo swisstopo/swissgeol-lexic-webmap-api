@@ -14,7 +14,8 @@ import type {
 } from "../../types/wms/semanticFilterParameterTypes";
 
 const SEMANTIC_CONSTRAINT_FUNCTION = "calculate_semantic_constraint";
-const SEMANTIC_CONSTRAINT_OPERATOR = "AND";
+const SEMANTIC_CONSTRAINT_AND_OPERATOR = "AND";
+const SEMANTIC_CONSTRAINT_OR_OPERATOR = "OR";
 const SEMANTIC_CONSTRAINT_CACHE_MAX_ENTRIES = 1000;
 const SEMANTIC_CONSTRAINT_CACHE_TTL_MS = 60 * 60 * 1000;
 
@@ -100,9 +101,8 @@ export const buildSemanticConstraintExpression = (
  * by generateWmsRequest responses.
  *
  * Empty filter arrays produce `undefined`, which means no `SEMANTIC_FILTER`
- * parameter is emitted. Multiple filters become multiple
- * `calculate_semantic_constraint(...)` calls joined with `AND`, because every
- * request filter further restricts the same WMS layer.
+ * parameter is emitted. Repeated term filters of the same type are grouped with
+ * `OR`; all groups and independent filters are joined with `AND`.
  *
  * The inverse path is `createSemanticFilterSolver`, which parses this string
  * during `/wms` handling and replaces each semantic call with generated CQL.
@@ -115,9 +115,34 @@ export const buildSemanticFilterExpression = (
     return undefined;
   }
 
-  return filters
-    .map((filter) => buildSemanticConstraintExpression(layerId, filter))
-    .join(` ${SEMANTIC_CONSTRAINT_OPERATOR} `);
+  const termGroups = new Map<string, string[]>();
+  const operands: string[][] = [];
+
+  for (const filter of filters) {
+    const expression = buildSemanticConstraintExpression(layerId, filter);
+    const isGroupedTerm = TERM_FILTER_TYPES.has(filter.filterId);
+    const existingGroup = isGroupedTerm
+      ? termGroups.get(filter.filterId)
+      : undefined;
+    if (existingGroup) {
+      existingGroup.push(expression);
+      continue;
+    }
+
+    const group = [expression];
+    operands.push(group);
+    if (isGroupedTerm) {
+      termGroups.set(filter.filterId, group);
+    }
+  }
+
+  return operands
+    .map((operand) =>
+      operand.length === 1
+        ? operand[0]
+        : `(${operand.join(` ${SEMANTIC_CONSTRAINT_OR_OPERATOR} `)})`
+    )
+    .join(` ${SEMANTIC_CONSTRAINT_AND_OPERATOR} `);
 };
 
 const parseIncludeNarrowers = (value: string): boolean => {
@@ -191,7 +216,8 @@ const setCachedConstraint = (
 export const createSemanticFilterSolver = (
   options: SemanticFilterSolverOptions = {}
 ): SemanticFilterSolver => {
-  const resolver = calculateSemanticConstraint;
+  const resolver =
+    options.calculateSemanticConstraint ?? calculateSemanticConstraint;
   const maxEntries = Math.max(
     1,
     options.cacheMaxEntries ?? SEMANTIC_CONSTRAINT_CACHE_MAX_ENTRIES

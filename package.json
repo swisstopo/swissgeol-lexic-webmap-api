@@ -1,8 +1,8 @@
 {
   "name": "webmap-api-mock",
-  "version": "0.0.6-dev-spec1.6.1",
+  "version": "0.0.7-dev-spec1.6.2",
   "private": true,
-  "description": "Server for SwissTopo WebMap Filter API (v1.6.1)",
+  "description": "Server for SwissTopo WebMap Filter API (v1.6.2)",
   "main": "dist/index.js",
   "scripts": {
     "generate:types": "ts-node scripts/generate_openapi_types.ts",

@@ -9,7 +9,6 @@ import type { OpenApiHandler, OpenApiRequest } from "../types/openapi/openApiRou
 import { binaryResponse, jsonResponse } from "../openapi/response";
 import { validateFilterRequest } from "../services/filters/validation/filterRequestValidationService";
 import {
-  getGeoServerWmsImage,
   postGeoServerWmsImage,
   WmsProxyInputError,
 } from "../services/geoserver/wmsProxyService";
@@ -95,8 +94,7 @@ export const postGenerateWmsRequestHandler: OpenApiHandler<
 };
 
 /**
- * Proxies a GET WMS request to GeoServer and returns the image bytes produced
- * by the upstream WMS service.
+ * Accepts a GET WMS request and proxies it to GeoServer as a POST form request.
  *
  * The raw query string is preserved because WMS parameters are protocol-level
  * inputs and may contain casing/encoding that should survive until the sanitizer
@@ -107,7 +105,7 @@ export const getWmsHandler: OpenApiHandler<"/wms", "get"> = async (
   request: OpenApiRequest<"/wms", "get">
 ) => {
   try {
-    const image = await getGeoServerWmsImage(
+    const image = await postGeoServerWmsImage(
       getRawQueryString(request.raw.url),
       readGeoServerEnvironmentConfig(),
       request.log

@@ -19,11 +19,11 @@ EXPECTED_GEOSERVER_BASE_URL = os.environ.get(
 ).rstrip("/")
 
 FILTER_CATALOG = {
-    "f-chronostrat-term": {"id": "f-chronostrat-term", "name": "Filter by Chronostratigraphy term", "title": "Filter by Chronostratigraphy term", "description": "Filter by chronostratigraphic intervals"},
-    "f-tectonic-term": {"id": "f-tectonic-term", "name": "Filter by Tectonic Units term", "title": "Filter by Tectonic Units term", "description": "Filter by tectonic units"},
-    "f-lithostrat-term": {"id": "f-lithostrat-term", "name": "Filter by Lithostratigraphy term", "title": "Filter by Lithostratigraphy term", "description": "Filter by lithostratigraphic units"},
-    "f-lithology-term": {"id": "f-lithology-term", "name": "Filter by Lithology term", "title": "Filter by Lithology term", "description": "Filter by lithology classes"},
-    "f-byAttribute": {"id": "f-byAttribute", "name": "Filter by Attribute", "title": "Filter by Attribute", "description": "Filter by attribute key/value"},
+    "f-chronostrat-term": {"id": "f-chronostrat-term", "name": "Chronostratigraphy", "title": "Filter by Chronostratigraphy term", "description": "Filter by chronostratigraphy terms"},
+    "f-tectonic-term": {"id": "f-tectonic-term", "name": "Tectonic Units", "title": "Filter by Tectonic Units term", "description": "Filter by tectonic unit terms"},
+    "f-lithostrat-term": {"id": "f-lithostrat-term", "name": "Lithostratigraphy", "title": "Filter by Lithostratigraphy term", "description": "Filter by lithostratigraphy terms"},
+    "f-lithology-term": {"id": "f-lithology-term", "name": "Lithology", "title": "Filter by Lithology term", "description": "Filter by lithology terms"},
+    "f-byAttribute": {"id": "f-byAttribute", "name": "Attribute", "title": "Filter by Attribute", "description": "Filter by attributes"},
 }
 
 LAYERS = [
@@ -175,14 +175,14 @@ TERM_RESPONSE_SAMPLES = {
 }
 
 EXPECTED_WMS_RESPONSE = {
-    "url": "https://dev-webmap-api.swissgeol.ch/wms",
+    "url": "https://dev-webmap-api.swissgeol.ch/v1/wms",
     "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( "tecto_units_augm" , "f-tectonic-term" , "https://dev-lexic.swissgeol.ch/TectonicUnits/AutochthonousNorthAlpineForeland" , "true" )&CRS=EPSG:2056',
     "mimeType": "image/png",
     "note": "The WMS URL includes encoded semantic query parameters.",
 }
 
 EXPECTED_WMS_BY_ATTRIBUTE_RESPONSE = {
-    "url": "https://dev-webmap-api.swissgeol.ch/wms",
+    "url": "https://dev-webmap-api.swissgeol.ch/v1/wms",
     "body": 'REQUEST=GetMap&SERVICE=WMS&VERSION=1.3.0&FORMAT=image/png&STYLES=swisstopo:filtered&TRANSPARENT=true&LAYERS=tecto_units_augm&TILED=true&SEMANTIC_FILTER=calculate_semantic_constraint( "tecto_units_augm" , "f-byAttribute" , "litho_en" , "ignored" )&CRS=EPSG:2056',
     "mimeType": "image/png",
     "note": "The WMS URL includes encoded semantic query parameters.",

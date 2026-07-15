@@ -6,7 +6,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildGeoServerWmsRequest,
-  getGeoServerWmsImage,
   postGeoServerWmsImage,
   normalizeGeoServerWmsEndpoint,
 } from "../../src/services/geoserver/wmsProxyService";
@@ -90,82 +89,6 @@ test("fails explicitly when the WMS response body is empty", async () => {
   );
 });
 
-test("loads a GeoServer WMS image with sanitized query parameters", async () => {
-  const originalFetch = global.fetch;
-  const imageBytes = Buffer.from([137, 80, 78, 71]);
-
-  global.fetch = async (
-    input: string | URL | Request,
-    init?: RequestInit
-  ): Promise<Response> => {
-    assert.equal(
-      input.toString(),
-      `https://geoserver.example/geoserver/swisstopo/wms?${baseWmsParameters}`
-    );
-    assert.equal(init?.method, "GET");
-    assert.deepEqual(init?.headers, {
-      accept: "image/png",
-    });
-
-    return new Response(imageBytes, {
-      status: 200,
-      headers: { "content-type": "image/png" },
-    });
-  };
-
-  try {
-    const result = await getGeoServerWmsImage(
-      `${baseWmsParameters}&CQL_FILTER=client_filter`,
-      buildGeoServerTestConfiguration(),
-      noopLogger
-    );
-
-    assert.deepEqual(result, imageBytes);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test("loads a GeoServer WMS image with backend-generated CQL from semantic filter", async () => {
-  const originalFetch = global.fetch;
-  const imageBytes = Buffer.from([137, 80, 78, 71]);
-  const expectedCql = "%22tecto_lexic%22%20IN%20(%20%27resolved%27%20)";
-
-  global.fetch = async (
-    input: string | URL | Request,
-    init?: RequestInit
-  ): Promise<Response> => {
-    assert.equal(
-      input.toString(),
-      `https://geoserver.example/geoserver/swisstopo/wms?${baseWmsParameters}&CQL_FILTER=${expectedCql}`
-    );
-    assert.equal(init?.method, "GET");
-
-    return new Response(imageBytes, {
-      status: 200,
-      headers: { "content-type": "image/png" },
-    });
-  };
-
-  try {
-    const result = await getGeoServerWmsImage(
-      `${baseWmsParameters}&SEMANTIC_FILTER=semantic&CQL_FILTER=client_filter`,
-      buildGeoServerTestConfiguration(),
-      noopLogger,
-      {
-        solveSemanticFilter: async (filterString: string): Promise<string> => {
-          assert.equal(filterString, "semantic");
-          return "\"tecto_lexic\" IN ( 'resolved' )";
-        },
-      }
-    );
-
-    assert.deepEqual(result, imageBytes);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
 test("posts a GeoServer WMS image request with sanitized form parameters", async () => {
   const originalFetch = global.fetch;
   const imageBytes = Buffer.from([137, 80, 78, 71]);
@@ -183,10 +106,7 @@ test("posts a GeoServer WMS image request with sanitized form parameters", async
       "content-type": "application/x-www-form-urlencoded",
       accept: "image/png",
     });
-    assert.equal(
-      init?.body,
-      baseWmsParameters
-    );
+    assert.equal(init?.body, baseWmsParameters);
 
     return new Response(imageBytes, {
       status: 200,
@@ -207,10 +127,14 @@ test("posts a GeoServer WMS image request with sanitized form parameters", async
   }
 });
 
-test("posts a GeoServer WMS image request with backend-generated CQL from semantic filter", async () => {
+test("keeps long backend-generated CQL in the POST body instead of the URL", async () => {
   const originalFetch = global.fetch;
   const imageBytes = Buffer.from([137, 80, 78, 71]);
-  const expectedCql = "%22tecto_lexic%22%20IN%20(%20'resolved'%20)";
+  const longCql = `"tecto_lexic" IN (${Array.from(
+    { length: 500 },
+    (_, index) => `'resolved-${index}'`
+  ).join(",")})`;
+  const expectedCql = encodeURIComponent(longCql);
 
   global.fetch = async (
     input: string | URL | Request,
@@ -220,6 +144,7 @@ test("posts a GeoServer WMS image request with backend-generated CQL from semant
       input.toString(),
       "https://geoserver.example/geoserver/swisstopo/wms"
     );
+    assert.equal(new URL(input.toString()).search, "");
     assert.equal(init?.method, "POST");
     assert.equal(
       init?.body,
@@ -240,7 +165,7 @@ test("posts a GeoServer WMS image request with backend-generated CQL from semant
       {
         solveSemanticFilter: async (filterString: string): Promise<string> => {
           assert.equal(filterString, "semantic");
-          return "\"tecto_lexic\" IN ( 'resolved' )";
+          return longCql;
         },
       }
     );
@@ -263,7 +188,7 @@ test("rejects successful upstream responses that are not image/png", async () =>
   try {
     await assert.rejects(
       () =>
-        getGeoServerWmsImage(
+        postGeoServerWmsImage(
           baseWmsParameters,
           buildGeoServerTestConfiguration(),
           noopLogger
@@ -299,7 +224,7 @@ test("aborts GeoServer WMS requests after the configured timeout", async () => {
   try {
     await assert.rejects(
       () =>
-        getGeoServerWmsImage(
+        postGeoServerWmsImage(
           baseWmsParameters,
           buildGeoServerTestConfiguration(1),
           noopLogger
@@ -345,7 +270,7 @@ test("aborts GeoServer WMS response body reads after the configured timeout", as
   try {
     await assert.rejects(
       () =>
-        getGeoServerWmsImage(
+        postGeoServerWmsImage(
           baseWmsParameters,
           buildGeoServerTestConfiguration(1),
           noopLogger

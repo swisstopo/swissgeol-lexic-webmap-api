@@ -51,11 +51,26 @@ test("GET /wms returns proxied image/png bytes", async () => {
   const imageBytes = Buffer.from([137, 80, 78, 71]);
 
   process.env.GEOSERVER_BASE_URL = "https://geoserver.example/geoserver/swisstopo";
-  global.fetch = async (): Promise<Response> =>
-    new Response(imageBytes, {
+  global.fetch = async (
+    input: string | URL | Request,
+    init?: RequestInit
+  ): Promise<Response> => {
+    assert.equal(
+      input.toString(),
+      "https://geoserver.example/geoserver/swisstopo/wms"
+    );
+    assert.equal(init?.method, "POST");
+    assert.deepEqual(init?.headers, {
+      "content-type": "application/x-www-form-urlencoded",
+      accept: "image/png",
+    });
+    assert.equal(init?.body, buildWmsQuery());
+
+    return new Response(imageBytes, {
       status: 200,
       headers: { "content-type": "image/png" },
     });
+  };
 
   try {
     const response = await app.inject({
@@ -100,9 +115,11 @@ test("GET /wms strips client CQL before calling GeoServer", async () => {
 
   process.env.GEOSERVER_BASE_URL = "https://geoserver.example/geoserver/swisstopo";
   global.fetch = async (
-    input: string | URL | Request
+    input: string | URL | Request,
+    init?: RequestInit
   ): Promise<Response> => {
     assert.doesNotMatch(input.toString(), /CQL_FILTER/u);
+    assert.doesNotMatch(String(init?.body), /CQL_FILTER/u);
 
     return new Response(imageBytes, {
       status: 200,
@@ -164,11 +181,26 @@ test("POST /wms returns proxied image/png bytes", async () => {
   const imageBytes = Buffer.from([137, 80, 78, 71]);
 
   process.env.GEOSERVER_BASE_URL = "https://geoserver.example/geoserver/swisstopo";
-  global.fetch = async (): Promise<Response> =>
-    new Response(imageBytes, {
+  global.fetch = async (
+    input: string | URL | Request,
+    init?: RequestInit
+  ): Promise<Response> => {
+    assert.equal(
+      input.toString(),
+      "https://geoserver.example/geoserver/swisstopo/wms"
+    );
+    assert.equal(init?.method, "POST");
+    assert.deepEqual(init?.headers, {
+      "content-type": "application/x-www-form-urlencoded",
+      accept: "image/png",
+    });
+    assert.equal(init?.body, buildWmsQuery());
+
+    return new Response(imageBytes, {
       status: 200,
       headers: { "content-type": "image/png" },
     });
+  };
 
   try {
     const response = await app.inject({

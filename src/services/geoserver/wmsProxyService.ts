@@ -11,7 +11,6 @@ import type { WmsProxyRequestOptions } from "../../types/wms/wmsRequestSanitizer
 import type {
   GeoServerWmsRequest,
   WmsProxyLogger,
-  WmsProxyMethod,
 } from "../../types/geoserver/wmsProxyTypes";
 
 export { WmsProxyInputError };
@@ -62,8 +61,8 @@ export const normalizeGeoServerWmsEndpoint = (baseUrl: string): string => {
  *    conversion to `sanitizeWmsRequestBody`.
  * 2. Normalize the configured GeoServer base URL to the concrete `/wms`
  *    endpoint.
- * 3. Attach the sanitized body and the fixed proxy headers used by the GET/POST
- *    forwarding functions.
+ * 3. Attach the sanitized body and the fixed proxy headers used by POST
+ *    forwarding.
  *
  * This service does not interpret semantic filters directly; it only prepares a
  * GeoServer-ready request after the WMS domain has sanitized it.
@@ -86,13 +85,6 @@ export const buildGeoServerWmsRequest = async (
   };
 };
 
-const buildGeoServerWmsGetUrl = (request: GeoServerWmsRequest): string => {
-  const url = new URL(request.endpointUrl);
-  url.search = request.body;
-
-  return url.toString();
-};
-
 const countWmsParameters = (body: string): number =>
   body.split("&").filter((parameter) => parameter.length > 0).length;
 
@@ -106,38 +98,11 @@ const isAbortError = (error: unknown): boolean =>
   "name" in error &&
   error.name === "AbortError";
 
-const buildGeoServerFetchInput = (
-  request: GeoServerWmsRequest,
-  method: WmsProxyMethod
-): string =>
-  method === "GET" ? buildGeoServerWmsGetUrl(request) : request.endpointUrl;
-
-const buildGeoServerFetchInit = (
-  request: GeoServerWmsRequest,
-  method: WmsProxyMethod
-): RequestInit => {
-  if (method === "GET") {
-    return {
-      method,
-      headers: {
-        accept: request.headers.accept,
-      },
-    };
-  }
-
-  return {
-    method,
-    headers: request.headers,
-    body: request.body,
-  };
-};
-
 /**
- * Executes the shared GeoServer WMS forwarding flow for both GET and POST.
+ * Executes the GeoServer WMS POST forwarding flow.
  *
  * The public entrypoints prepare an already-sanitized request, then this helper:
- * - chooses whether the WMS body is appended to the URL (GET) or sent as form
- *   body (POST);
+ * - sends the WMS parameters as a form body;
  * - logs host/path, method, parameter count, timings, and timeout settings;
  * - aborts the upstream fetch after the configured timeout;
  * - hides network failures, timeouts, non-OK statuses, XML errors, and non-PNG
@@ -147,9 +112,9 @@ const buildGeoServerFetchInit = (
 const fetchGeoServerWmsImage = async (
   request: GeoServerWmsRequest,
   configuration: GeoServerEnvironmentConfig,
-  method: WmsProxyMethod,
   logger: WmsProxyLogger
 ): Promise<Buffer> => {
+  const method = "POST";
   const outboundUrl = new URL(request.endpointUrl);
   const operation = `${method} GeoServer WMS image`;
   const parameterCount = countWmsParameters(request.body);
@@ -174,10 +139,11 @@ const fetchGeoServerWmsImage = async (
 
   let upstreamResponse: Response;
   try {
-    const fetchInit = buildGeoServerFetchInit(request, method);
     try {
-      upstreamResponse = await fetch(buildGeoServerFetchInput(request, method), {
-        ...fetchInit,
+      upstreamResponse = await fetch(request.endpointUrl, {
+        method,
+        headers: request.headers,
+        body: request.body,
         signal: abortController.signal,
       });
     } catch (error) {
@@ -272,23 +238,6 @@ const fetchGeoServerWmsImage = async (
 };
 
 /**
- * Sanitizes raw WMS parameters, forwards them as a GeoServer GET request, and
- * returns the accepted PNG image bytes.
- */
-export const getGeoServerWmsImage = async (
-  wmsParameters: string,
-  configuration: GeoServerEnvironmentConfig,
-  logger: WmsProxyLogger,
-  options: WmsProxyRequestOptions = {}
-): Promise<Buffer> =>
-  fetchGeoServerWmsImage(
-    await buildGeoServerWmsRequest(wmsParameters, configuration, options),
-    configuration,
-    "GET",
-    logger
-  );
-
-/**
  * Sanitizes raw WMS parameters, forwards them as a GeoServer POST form request,
  * and returns the accepted PNG image bytes.
  */
@@ -301,6 +250,5 @@ export const postGeoServerWmsImage = async (
   fetchGeoServerWmsImage(
     await buildGeoServerWmsRequest(wmsParameters, configuration, options),
     configuration,
-    "POST",
     logger
   );

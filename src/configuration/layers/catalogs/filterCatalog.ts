@@ -6,32 +6,32 @@ import type {
 export const LAYER_FILTER_CATALOG: Record<LayerFilterId, LayerFilterDefinition> = {
   "f-chronostrat-term": {
     id: "f-chronostrat-term",
-    name: "Filter by Chronostratigraphy term",
+    name: "Chronostratigraphy",
     title: "Filter by Chronostratigraphy term",
-    description: "Filter by chronostratigraphic intervals",
+    description: "Filter by chronostratigraphy terms",
   },
   "f-tectonic-term": {
     id: "f-tectonic-term",
-    name: "Filter by Tectonic Units term",
+    name: "Tectonic Units",
     title: "Filter by Tectonic Units term",
-    description: "Filter by tectonic units",
+    description: "Filter by tectonic unit terms",
   },
   "f-lithostrat-term": {
     id: "f-lithostrat-term",
-    name: "Filter by Lithostratigraphy term",
+    name: "Lithostratigraphy",
     title: "Filter by Lithostratigraphy term",
-    description: "Filter by lithostratigraphic units",
+    description: "Filter by lithostratigraphy terms",
   },
   "f-lithology-term": {
     id: "f-lithology-term",
-    name: "Filter by Lithology term",
+    name: "Lithology",
     title: "Filter by Lithology term",
-    description: "Filter by lithology classes",
+    description: "Filter by lithology terms",
   },
   "f-byAttribute": {
     id: "f-byAttribute",
-    name: "Filter by Attribute",
+    name: "Attribute",
     title: "Filter by Attribute",
-    description: "Filter by attribute key/value",
+    description: "Filter by attributes",
   },
 };

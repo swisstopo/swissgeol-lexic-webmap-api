@@ -15,6 +15,7 @@ export type SemanticFilterSolverOptions = {
   cacheMaxEntries?: number;
   cacheTtlMs?: number;
   now?: () => number;
+  calculateSemanticConstraint?: CalculateSemanticConstraint;
 };
 
 export type CachedSemanticConstraint = {

@@ -67,6 +67,16 @@ test("resolves multiple constraints and preserves AND", async () => {
   assert.equal(calls.length, 2);
 });
 
+test("preserves OR and parentheses after replacing semantic constraints", async () => {
+  const { solver } = createRecordingSolver(["A_lithology", "B_lithology", "byAttribute"]);
+
+  const result = await solver(
+    '(calculate_semantic_constraint( "gc_bedrock" , "f-lithology-term" , "A" , "true" ) OR calculate_semantic_constraint( "gc_bedrock" , "f-lithology-term" , "B" , "true" )) AND calculate_semantic_constraint( "gc_bedrock" , "f-byAttribute" , "kind" , "sedimentary" )'
+  );
+
+  assert.equal(result, "(A_lithology OR B_lithology) AND byAttribute");
+});
+
 test("converts term includeNarrowers false to a boolean", async () => {
   const { calls, solver } = createRecordingSolver(['"litho_lexic_1" IN ( \'uri\' )']);
 

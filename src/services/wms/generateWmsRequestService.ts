@@ -9,7 +9,7 @@ import type {
   WmsResponse,
 } from "../../types/wms/generateWmsRequestTypes";
 
-const WMS_PROXY_URL = "https://dev-webmap-api.swissgeol.ch/wms";
+const WMS_PROXY_URL = "https://dev-webmap-api.swissgeol.ch/v1/wms";
 const WMS_MIME_TYPE = "image/png";
 const WMS_NOTE = "The WMS URL includes encoded semantic query parameters.";
 

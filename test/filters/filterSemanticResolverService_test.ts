@@ -8,8 +8,8 @@ import test from "node:test";
 import {
   resolveChronostratigraphyConcepts,
   resolveTermFilterNarrowers,
-  type SemanticConceptQueryExecutor,
 } from "../../src/services/graphdb/filterSemanticResolverService";
+import type { SemanticConceptQueryExecutor } from "../../src/types/graphdb/filterSemanticResolverTypes";
 import type { PublicVocabularyId } from "../../src/types/graphdb/graphDbTypes";
 
 test("resolves narrower terms through the configured term filter query", async () => {
