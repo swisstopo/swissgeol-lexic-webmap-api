@@ -8,9 +8,9 @@ import GetQueryPayload from "graphdb/lib/query/get-query-payload";
 import QueryType from "graphdb/lib/query/query-type";
 import RepositoryClientConfig from "graphdb/lib/repository/repository-client-config";
 import GraphDBClient from "./GraphDBClient";
+import { SparqlXmlParser } from 'sparqlxml-parse';
 
 const GRAPHDB_TIMEOUT_MS = 50_000;
-const EMPTY_PARSER_CONFIG: Record<string, never> = {};
 const DEFAULT_QUERY_LIMIT = 2000;
 
 interface QueryExecutionOptions {
@@ -69,13 +69,15 @@ class QueryExecutor {
       const repository = await this.graphDBClient
         .getClient()
         .getRepository(this.repositoryId, this.repositoryConfig);
-      repository.registerParser(new SparqlXmlResultParser(EMPTY_PARSER_CONFIG));
+      const resultParser = new SparqlXmlResultParser({});
+      resultParser.parser = new SparqlXmlParser();
+      repository.registerParser(resultParser);
 
       const payload = new GetQueryPayload()
-        .setQuery(sparqlQuery)
         .setQueryType(QueryType.SELECT)
-        .setResponseType(RDFMimeType.SPARQL_RESULTS_XML)
-        .setTimeout(GRAPHDB_TIMEOUT_MS);
+        .setResponseType(RDFMimeType.SPARQL_RESULTS_XML);
+      payload.setTimeout(GRAPHDB_TIMEOUT_MS);
+      payload.setQuery(sparqlQuery);
 
       const limit =
         options.limit === undefined ? DEFAULT_QUERY_LIMIT : options.limit;
